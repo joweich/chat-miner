@@ -35,6 +35,7 @@ def get_df_from_chatlog(filepath, dateformat='mm/dd/yy'):
     with open(filepath, encoding="utf-8") as f:
         parsed_chat = []
         message_buffer = []
+        date, time, author = None, None, None
         for line in f:
             line = line.strip()
             if re.match(DATEREGEX[dateformat], line):
@@ -53,8 +54,8 @@ def get_df_from_chatlog(filepath, dateformat='mm/dd/yy'):
 
     df = pd.DataFrame(parsed_chat)
     df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'],
-        infer_datetime_format=True)
+                                    infer_datetime_format=True)
     df['weekday'] = df['datetime'].dt.day_name()
-    df['words'] = df['message'].apply(lambda s : len(s.split(' ')))
-    df['letters'] = df['message'].apply(lambda s : len(s))
+    df['words'] = df['message'].apply(lambda s: len(s.split(' ')))
+    df['letters'] = df['message'].apply(lambda s: len(s))
     return df[["weekday", "datetime", "author", "message", "words", "letters"]]
