@@ -36,8 +36,8 @@ def get_df_from_chatlog(filepath, dateformat='mm/dd/yy',
             r'- ([\w]+[\s]+[\w]+[\s]+[\w]+):',
         ]
         pattern = '|'.join(patterns)
-        res = re.search(pattern, line).group(0)
-        return re.sub(r'|\-|\:', '', res).strip()
+        res = re.search(pattern, line)
+        return re.sub(r'|\-|\:', '', res.group(0)).strip() if res else 'System'
 
     assert filepath.endswith('.txt'),\
         "Wrong file type: Specified file does not end with .txt"
@@ -49,23 +49,22 @@ def get_df_from_chatlog(filepath, dateformat='mm/dd/yy',
         for line in f:
             line = line.strip()
             if re.match(DATEREGEX[dateformat], line):
-                if message_buffer and date and time and author:
+                if message_buffer:
                     parsed_chat.append({
                         'date': date,
                         'time': time,
                         'author': author,
                         'message': ' '.join(message_buffer).strip()
                     })
-                else:
-                    print(f"Ignored line with missing metadata:\
-                          {' '.join(message_buffer).strip()}")
+
                 message_buffer.clear()
-                message_buffer.append(line.split(':')[2])
+                message_buffer.append(line.split('-', 1)[1])
                 date, time, author = get_message_metadata(line)
             else:
                 message_buffer.append(line)
 
     df = pd.DataFrame(parsed_chat)
+    df = df[df['author'] != 'System']
     df['datetime'] = pd.to_datetime(df['date'] + ' ' + df['time'],
                                     infer_datetime_format=True)
     df['weekday'] = df['datetime'].dt.day_name()
