@@ -6,7 +6,7 @@ DATEREGEX = {
     'dd/mm/yy':
         r'^([0-2][0-9]|(3)[0-1][0-9])(\/)(([0-1][0-9])|((1)[0-2]))(\/)(\d{2}|\d{4})',
     'dd/mm/yyyy':
-            r'^([0-2][0-9]|(3)[0-1][0-9])(\/)(([0-1][0-9])|((1)[0-2]))(\/)(\d{4}|\d{4})',
+        r'^([0-2][0-9]|(3)[0-1][0-9])(\/)(([0-1][0-9])|((1)[0-2]))(\/)(\d{4}|\d{4})',
     'mm/dd/yy':
         r'^(([0-9])|((1)[0-2]))(\/)([0-2][0-9]|(3)[0-1]|[0-9])(\/)(\d{2}|\d{4})',
     'dd.mm.yy':
@@ -66,8 +66,11 @@ def get_df_from_chatlog(filepath, dateformat='mm/dd/yy',
                     })
 
                 message_buffer.clear()
-                message_buffer.append(line.split('-', 1)[1])
                 date, time, author = get_message_metadata(line)
+                if author != 'System':
+                    message_buffer.append(line.split('-', 1)[1].split(':', 1)[1])
+                else:
+                    message_buffer.append(line.split('-', 1)[1])
             else:
                 message_buffer.append(line)
 
