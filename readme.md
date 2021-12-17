@@ -13,3 +13,10 @@ To export a chat:
  ```python
 get_df_from_chatlog(filepath, dateformat='mm/dd/yy', timeformat='24-hh:mm')
 ```
+
+---
+
+## Examples
+![Lineplot](examples/lineplot.png)
+![Sunburst](examples/sunburst.png)
+![Wordcloud](examples/wordcloud.png)
