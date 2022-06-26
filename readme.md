@@ -1,22 +1,41 @@
 ## Getting your data
-To export a chat:
+---
+As of now, only WhatsApp chats are supported. Steps to export a WhatsApp chat:
  - Go to the app
  - Go to Settings/Chats/Chat History
  - Tap *Export chat*
  - Select the chat you want to export
 
----
-
- ## Necessary Adjustments
- 
- Depending on different factors, WhatsApp exports the datetime of messages in different formats. Therefore, you need to look up your format and adjust the respective parameter when calling
+ ## Parsing the chatfile
+ ---
+ The following code uses the ``WhatsAppParser`` module to:
+ - Read a chatfile
+ - Infer its datetime format
+ - Parse its content into a DataFrame
+ - Add additonal metadata columns
  ```python
-get_df_from_chatlog(filepath, dateformat='mm/dd/yy', timeformat='24-hh:mm')
+from chatminer.chatparsers import WhatsAppParser
+
+parser = WhatsAppParser(FILEPATH)
+parser.parse_file_into_df()
+print(parser.df.describe())
 ```
 
----
 
-## Examples
-![Lineplot](examples/lineplot.png)
+## Creating Visualizations
+---
+### Sunburst Chart
+```python
+import chatminer.visualizations as vis
+vis.sunburst(parser.df)
+```
 ![Sunburst](examples/sunburst.png)
+
+---
+### Wordcloud
+```python
+import chatminer.visualizations as vis
+stopwords = ['media', 'omitted', 'missed', 'voice', 'call']
+vis.wordcloud(parser.df, stopwords)
+```
 ![Wordcloud](examples/wordcloud.png)
