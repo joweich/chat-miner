@@ -25,9 +25,9 @@ class WhatsAppParser():
 
         parsed_messages = []
         for mess in self.messages:
-            parsed_messages.append(
-                self._parse_message(mess)
-            )
+            parsed_mess = self._parse_message(mess)
+            if parsed_mess:
+                parsed_messages.append(parsed_mess)
 
         self.df = pd.DataFrame(parsed_messages)
         self._logger.info("Finished parsing chatlog into dataframe.")
@@ -95,6 +95,10 @@ class WhatsAppParser():
         if author != 'System':
             body = mess.split('-', 1)[1].split(':', 1)[1].strip()
         else:
+            if len(mess.split('-', 1)) == 1:
+                self._logger.warning(f"Failed to parse message: {mess}.")
+                self._logger.warning("Please report message format in GitHub.")
+                return None
             body = mess.split('-', 1)[1]
 
         parsed_message = {
