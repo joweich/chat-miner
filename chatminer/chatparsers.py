@@ -34,6 +34,12 @@ class WhatsAppParser():
         self._add_metadata()
         self._logger.info("Finished adding metadata to dataframe.")
 
+    def write_df_to_csv(self, filename):
+        if self.df is not None:
+            self.df.to_csv(filename, index=False)
+        else:
+            self._logger.error("Failed writing to csv. Parse file first.")
+
     def _read_file_into_list(self):
         self.messages = []
         buffer = []
