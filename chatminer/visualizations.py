@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from wordcloud import WordCloud, STOPWORDS
 
 
 def sunburst(df: pd.DataFrame):
@@ -44,20 +43,20 @@ def sunburst(df: pd.DataFrame):
     plt.show()
 
 
-def wordcloud(df: pd.DataFrame, stopwords: list):
-    messages = [word.split() for word in df["message"].values]
-    words = [word.lower() for sublist in messages for word in sublist]
+# def wordcloud(df: pd.DataFrame, stopwords: list):
+#     messages = [word.split() for word in df["message"].values]
+#     words = [word.lower() for sublist in messages for word in sublist]
 
-    stopwords = STOPWORDS.update(stopwords)
+#     stopwords = STOPWORDS.update(stopwords)
 
-    wordcloud = WordCloud(stopwords=stopwords, max_font_size=90, width=800,
-                          height=400, background_color='white',
-                          colormap='magma', min_word_length=2, max_words=400,
-                          min_font_size=12)
-    wordcloud.generate(' '.join(words))
+#     wordcloud = WordCloud(stopwords=stopwords, max_font_size=90, width=800,
+#                           height=400, background_color='white',
+#                           colormap='magma', min_word_length=2, max_words=400,
+#                           min_font_size=12)
+#     wordcloud.generate(' '.join(words))
 
-    plt.figure(figsize=(8, 4))
-    plt.imshow(wordcloud, interpolation="bilinear")
-    plt.axis("off")
-    plt.tight_layout()
-    plt.show()
+#     plt.figure(figsize=(8, 4))
+#     plt.imshow(wordcloud, interpolation="bilinear")
+#     plt.axis("off")
+#     plt.tight_layout()
+#     plt.show()
