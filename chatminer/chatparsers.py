@@ -32,6 +32,10 @@ class Parser():
         self.df['letters'] = self.df['message'].apply(lambda s: len(s))
 
 class SignalParser(Parser):
+    def __init__(self, filepath):
+        super().__init__(filepath)
+        self.DATEREG = r'^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]'
+
     def parse_file_into_df(self):
         self._read_file_into_list()
         parsed_messages = []
@@ -53,7 +57,7 @@ class SignalParser(Parser):
             line = line.strip()
             if not line:
                 continue
-            if re.match(DATEREG_SIGNAL, line):
+            if re.match(self.DATEREG, line):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
@@ -79,6 +83,10 @@ class SignalParser(Parser):
         return parsed_message
 
 class WhatsAppParser(Parser):
+    def __init__(self, filepath):
+        super().__init__(filepath)
+        self.DATEREG = r'^((\d{1})|(\d{2}))((\.)|(\/))((\d{1})|(\d{2}))((\.)|(\/))((\d{2}))'
+
     def parse_file_into_df(self):
         self._read_file_into_list()
         self._infer_datatime_format()
@@ -107,7 +115,7 @@ class WhatsAppParser(Parser):
             if not line:
                 continue
 
-            if re.match(DATEREG, line):
+            if re.match(self.DATEREG, line):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
@@ -184,7 +192,3 @@ class StartOfDateType(Enum):
     DAY = 1
     MONTH = 2
     AMBIGUOUS = 3
-
-
-DATEREG = r'^((\d{1})|(\d{2}))((\.)|(\/))((\d{1})|(\d{2}))((\.)|(\/))((\d{2}))'
-DATEREG_SIGNAL = r'^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]'
