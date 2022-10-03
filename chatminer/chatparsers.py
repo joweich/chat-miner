@@ -4,9 +4,11 @@ import pandas as pd
 from enum import Enum
 from dateutil import parser as datetimeparser
 from pathlib import Path
+from abc import ABC, abstractmethod
 logging.basicConfig(level=logging.INFO)
 
-class Parser():
+
+class Parser(ABC):
     def __init__(self, filepath):
         self._file = Path(filepath)
         assert self._file.is_file()
@@ -23,13 +25,18 @@ class Parser():
             self.df.to_csv(filename, index=False)
         else:
             self._logger.error("Failed writing to csv. Parse file first.")
-    
+
     def _add_metadata(self):
         self.df['weekday'] = self.df['datetime'].dt.day_name()
         self.df["hour"] = self.df["datetime"].dt.hour
         self.df['words'] = \
             self.df['message'].apply(lambda s: len(s.split(' ')))
         self.df['letters'] = self.df['message'].apply(lambda s: len(s))
+
+    @abstractmethod
+    def parse_file_into_df():
+        pass
+
 
 class SignalParser(Parser):
     def __init__(self, filepath):
@@ -47,7 +54,7 @@ class SignalParser(Parser):
         self._logger.info("Finished parsing chatlog into dataframe.")
         self._add_metadata()
         self._logger.info("Finished adding metadata to dataframe.")
-    
+
     def _read_file_into_list(self):
         self.messages = []
         with self._file.open(encoding="utf-8") as f:
@@ -81,6 +88,7 @@ class SignalParser(Parser):
             'message': msg
         }
         return parsed_message
+
 
 class WhatsAppParser(Parser):
     def __init__(self, filepath):
