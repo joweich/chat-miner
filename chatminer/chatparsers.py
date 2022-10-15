@@ -1,7 +1,9 @@
+import json
 import logging
 import re
 import pandas as pd
 from enum import Enum
+import datetime as datetimemodule
 from dateutil import parser as datetimeparser
 from pathlib import Path
 from abc import ABC, abstractmethod
@@ -194,6 +196,54 @@ class WhatsAppParser(Parser):
         pattern = '|'.join(patterns)
         res = re.search(pattern, message)
         return re.sub(r'|\-|\:', '', res.group(0)).strip() if res else 'System'
+
+class FacebookMessengerParser(Parser):
+    def __init__(self, filepath):
+        super().__init__(filepath)
+
+    def parse_file_into_df(self):
+        self._read_file_into_list()
+
+        parsed_messages = []
+        for mess in self.messages:
+            parsed_mess = self._parse_message(mess)
+            if parsed_mess:
+                parsed_messages.append(parsed_mess)
+
+        self.df = pd.DataFrame(parsed_messages)
+        self._logger.info("Finished parsing chatlog into dataframe.")
+        self._add_metadata()
+        self._logger.info("Finished adding metadata to dataframe.")
+
+    def _read_file_into_list(self):
+        self.messages = []
+
+        with self._file.open(encoding="utf-8") as f:
+            messages_raw = reversed((json.load(f)["messages"]))
+
+        for line in messages_raw:
+            self.messages.append(line)
+        self._logger.info(f"Finished reading {len(self.messages)} messages.")
+
+    def _parse_message(self, mess):
+        datetime = datetimemodule.datetime.fromtimestamp(mess['timestamp_ms']/1000)
+        parsed_message = {
+            'datetime': datetime,
+            'author': mess["sender_name"],
+            'message': ''
+        }
+        if mess['type'] == 'Share':
+           parsed_message['message'] = mess['share']['link']
+        elif 'sticker' in mess:
+            parsed_message['message'] = mess['sticker']['uri']
+        else:
+             parsed_message['message'] = mess['content']
+        return parsed_message
+
+    def _get_message_author(self, message):
+        return
+
+
 
 
 class StartOfDateType(Enum):
