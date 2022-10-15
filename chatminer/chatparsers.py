@@ -233,18 +233,12 @@ class FacebookMessengerParser(Parser):
             'message': ''
         }
         if mess['type'] == 'Share':
-           parsed_message['message'] = mess['share']['link']
+            parsed_message['message'] = mess['share']['link']
         elif 'sticker' in mess:
             parsed_message['message'] = mess['sticker']['uri']
         else:
-             parsed_message['message'] = mess['content']
+            parsed_message['message'] = mess['content']
         return parsed_message
-
-    def _get_message_author(self, message):
-        return
-
-
-
 
 class StartOfDateType(Enum):
     DAY = 1
