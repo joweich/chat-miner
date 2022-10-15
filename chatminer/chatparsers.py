@@ -2,11 +2,11 @@ import logging
 import re
 import json
 import datetime
-import pandas as pd
-from enum import Enum
-from dateutil import parser as datetimeparser
-from pathlib import Path
 from abc import ABC, abstractmethod
+from enum import Enum
+from pathlib import Path
+from dateutil import parser as datetimeparser
+import pandas as pd
 logging.basicConfig(level=logging.INFO)
 
 
@@ -36,7 +36,7 @@ class Parser(ABC):
         self.df['letters'] = self.df['message'].apply(lambda s: len(s))
 
     @abstractmethod
-    def parse_file_into_df():
+    def parse_file_into_df(self):
         pass
 
 
@@ -207,11 +207,11 @@ class StartOfDateType(Enum):
 class TelegramJsonParser(Parser):
     def __init__(self, filepath):
         super().__init__(filepath)
-    
+
     def parse_file_into_df(self):
         messages = []
-        with self._file.open() as f:
-            json_objects = json.load(f)                
+        with self._file.open(encoding='utf-8') as f:
+            json_objects = json.load(f)
             messages = json_objects['messages']
             self._logger.info(f"Finished reading {len(messages)} messages.")
 
@@ -220,12 +220,12 @@ class TelegramJsonParser(Parser):
             parsed_message = self._parse_message(message)
             if parsed_message:
                 parsed_messages.append(parsed_message)
-        
+
         self.df = pd.DataFrame(parsed_messages)
         self._logger.info("Finished parsing chatlog into dataframe.")
         self._add_metadata()
         self._logger.info("Finished adding metadata to dataframe.")
-    
+
     def _parse_message(self, message):
         author = message['from']
         time = datetime.datetime.fromtimestamp(int(message['date_unixtime']))
@@ -235,7 +235,7 @@ class TelegramJsonParser(Parser):
             'author' : author,
             'message' : text
         }
-    
+
     def _add_metadata(self):
         self.df['weekday'] = self.df['datetime'].dt.day_name()
         self.df["hour"] = self.df["datetime"].dt.hour
