@@ -3,3 +3,4 @@ numpy
 seaborn
 matplotlib
 wordcloud
+python-dateutil

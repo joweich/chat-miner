@@ -13,6 +13,13 @@ As of now, only WhatsApp and Signal chats are supported.
  - Run `pip install signal-export` (This will install [signal-export](https://github.com/carderne/signal-export) on your computer)
  - Run `sigexport ~/signal-chats` (This saves the Signal chats in `~/signal-chats`)
 
+### Steps to export a Telegram chat (from Telegram-Desktop):
+- Open the telegram-desktop app
+- Go to the chat you want to export
+- Click on the three dots (...) on the upper right side of the chat
+- Click on *export chat history*
+- For now this tool only accepts JSON parsing, so select the *json* format and click on export.
+
  ## Parsing the chatfile
  ---
  The following code uses the ``WhatsAppParser`` module to:
