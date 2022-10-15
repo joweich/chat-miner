@@ -20,6 +20,9 @@ As of now, only WhatsApp and Signal chats are supported.
 - Click on *export chat history*
 - For now this tool only accepts JSON parsing, so select the *json* format and click on export.
 
+### Steps to export a Facebook Messenger chat (from Mobile Apps):
+- Refer to [the official guide](https://www.facebook.com/help/messenger-app/713635396288741?cms_id=713635396288741&published_only=true)
+
  ## Parsing the chatfile
  ---
  The following code uses the ``WhatsAppParser`` module to:
