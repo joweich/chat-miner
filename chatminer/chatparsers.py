@@ -1,6 +1,6 @@
+import json
 import logging
 import re
-import json
 import datetime
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -198,10 +198,48 @@ class WhatsAppParser(Parser):
         return re.sub(r'|\-|\:', '', res.group(0)).strip() if res else 'System'
 
 
-class StartOfDateType(Enum):
-    DAY = 1
-    MONTH = 2
-    AMBIGUOUS = 3
+class FacebookMessengerParser(Parser):
+    def __init__(self, filepath):
+        super().__init__(filepath)
+
+    def parse_file_into_df(self):
+        self._read_file_into_list()
+
+        parsed_messages = []
+        for mess in self.messages:
+            parsed_mess = self._parse_message(mess)
+            if parsed_mess:
+                parsed_messages.append(parsed_mess)
+
+        self.df = pd.DataFrame(parsed_messages)
+        self._logger.info("Finished parsing chatlog into dataframe.")
+        self._add_metadata()
+        self._logger.info("Finished adding metadata to dataframe.")
+
+    def _read_file_into_list(self):
+        self.messages = []
+
+        with self._file.open(encoding="utf-8") as f:
+            messages_raw = reversed((json.load(f)["messages"]))
+
+        for line in messages_raw:
+            self.messages.append(line)
+        self._logger.info(f"Finished reading {len(self.messages)} messages.")
+
+    def _parse_message(self, mess):
+        time = datetime.datetime.fromtimestamp(mess['timestamp_ms']/1000)
+        parsed_message = {
+            'datetime': time,
+            'author': mess["sender_name"],
+            'message': ''
+        }
+        if mess['type'] == 'Share':
+            parsed_message['message'] = mess['share']['link']
+        elif 'sticker' in mess:
+            parsed_message['message'] = mess['sticker']['uri']
+        else:
+            parsed_message['message'] = mess['content']
+        return parsed_message
 
 
 class TelegramJsonParser(Parser):
@@ -241,3 +279,9 @@ class TelegramJsonParser(Parser):
         self.df["hour"] = self.df["datetime"].dt.hour
         self.df['words'] = self.df['message'].apply(lambda s: len(s.split(' ')))
         self.df['letters'] = self.df['message'].apply(lambda s: len(s))
+
+
+class StartOfDateType(Enum):
+    DAY = 1
+    MONTH = 2
+    AMBIGUOUS = 3
