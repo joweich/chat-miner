@@ -7,6 +7,7 @@ from enum import Enum
 from pathlib import Path
 from dateutil import parser as datetimeparser
 import pandas as pd
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -15,12 +16,28 @@ class Parser(ABC):
         self._file = Path(filepath)
         assert self._file.is_file()
 
-        self._datetime_format = None
         self.messages = None
         self.df = None
 
-        self._logger = logging.getLogger(__name__).\
-            getChild(self.__class__.__name__).getChild(str(id(self)))
+        self._logger = (
+            logging.getLogger(__name__)
+            .getChild(self.__class__.__name__)
+            .getChild(str(id(self)))
+        )
+
+    def parse_file_into_df(self):
+        self._read_file_into_list()
+
+        parsed_messages = []
+        for mess in self.messages:
+            parsed_mess = self._parse_message(mess)
+            if parsed_mess:
+                parsed_messages.append(parsed_mess)
+
+        self.df = pd.DataFrame(parsed_messages)
+        self._logger.info("Finished parsing chatlog into dataframe.")
+        self._add_metadata()
+        self._logger.info("Finished adding metadata to dataframe.")
 
     def write_df_to_csv(self, filename):
         if self.df is not None:
@@ -29,33 +46,22 @@ class Parser(ABC):
             self._logger.error("Failed writing to csv. Parse file first.")
 
     def _add_metadata(self):
-        self.df['weekday'] = self.df['datetime'].dt.day_name()
+        self.df["weekday"] = self.df["datetime"].dt.day_name()
         self.df["hour"] = self.df["datetime"].dt.hour
-        self.df['words'] = \
-            self.df['message'].apply(lambda s: len(s.split(' ')))
-        self.df['letters'] = self.df['message'].apply(lambda s: len(s))
+        self.df["words"] = self.df["message"].apply(lambda s: len(s.split(" ")))
+        self.df["letters"] = self.df["message"].apply(len)
 
     @abstractmethod
-    def parse_file_into_df(self):
-        pass
+    def _read_file_into_list(self):
+        return
+
+    @abstractmethod
+    def _parse_message(self, mess):
+        return
 
 
 class SignalParser(Parser):
-    def __init__(self, filepath):
-        super().__init__(filepath)
-        self.DATEREG = r'^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]'
-
-    def parse_file_into_df(self):
-        self._read_file_into_list()
-        parsed_messages = []
-        for msg in self.messages:
-            parsed_msg = self._parse_message(msg)
-            if parsed_msg:
-                parsed_messages.append(parsed_msg)
-        self.df = pd.DataFrame(parsed_messages)
-        self._logger.info("Finished parsing chatlog into dataframe.")
-        self._add_metadata()
-        self._logger.info("Finished adding metadata to dataframe.")
+    DATEREG = r"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]"
 
     def _read_file_into_list(self):
         self.messages = []
@@ -66,11 +72,11 @@ class SignalParser(Parser):
             line = line.strip()
             if not line:
                 continue
-            if re.match(self.DATEREG, line):
+            if re.match(SignalParser.DATEREG, line):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
-                    self.messages.append(' '.join(buffer))
+                    self.messages.append(" ".join(buffer))
                     buffer.clear()
                 else:
                     self.messages.append(line)
@@ -78,24 +84,22 @@ class SignalParser(Parser):
                 buffer.append(line)
         self._logger.info(f"Finished reading {len(self.messages)} messages.")
 
-    def _parse_message(self, msg):
-        datetime_raw, msg = msg.split(']', 1)
+    def _parse_message(self, mess):
+        datetime_raw, mess = mess.split("]", 1)
         time = datetimeparser.parse(datetime_raw[1:])
-        author, msg = msg.split(':', 1)
+        author, mess = mess.split(":", 1)
         author = author.strip()
-        msg = msg.strip()
-        parsed_message = {
-            'datetime': time,
-            'author': author,
-            'message': msg
-        }
+        mess = mess.strip()
+        parsed_message = {"datetime": time, "author": author, "message": mess}
         return parsed_message
 
 
 class WhatsAppParser(Parser):
+    DATEREG = r"^((\d{1})|(\d{2}))((\.)|(\/))((\d{1})|(\d{2}))((\.)|(\/))((\d{2}))"
+
     def __init__(self, filepath):
         super().__init__(filepath)
-        self.DATEREG = r'^((\d{1})|(\d{2}))((\.)|(\/))((\d{1})|(\d{2}))((\.)|(\/))((\d{2}))'
+        self._datetime_format = None
 
     def parse_file_into_df(self):
         self._read_file_into_list()
@@ -125,11 +129,11 @@ class WhatsAppParser(Parser):
             if not line:
                 continue
 
-            if re.match(self.DATEREG, line):
+            if re.match(WhatsAppParser.DATEREG, line):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
-                    self.messages.append(' '.join(buffer))
+                    self.messages.append(" ".join(buffer))
                     buffer.clear()
                 else:
                     self.messages.append(line)
@@ -142,80 +146,62 @@ class WhatsAppParser(Parser):
         max_first = 0
         max_second = 0
         for line in self.messages:
-            line = line.replace(r'/', '.', 2)
-            day_and_month = [int(num) for num in line.split('.')[:2]]
+            line = line.replace(r"/", ".", 2)
+            day_and_month = [int(num) for num in line.split(".")[:2]]
             max_first = max(max_first, day_and_month[0])
             max_second = max(max_second, day_and_month[1])
             if (max_first > 12) and (max_second > 12):
                 raise ValueError(f"Invalid date format: {line}")
 
-        if (max_first > 12 and max_second <= 12):
+        if max_first > 12 and max_second <= 12:
             self._logger.info("Inferred day first format.")
             self._datetime_format = StartOfDateType.DAY
-        elif (max_first <= 12 and max_second > 12):
+        elif max_first <= 12 and max_second > 12:
             self._logger.info("Inferred month first format.")
             self._datetime_format = StartOfDateType.MONTH
         else:
-            self._logger.warning("Can't infer dateformat. \
-                No message with day > 12. Assuming day first.")
+            self._logger.warning(
+                "Can't infer dateformat. \
+                No message with day > 12. Assuming day first."
+            )
             self._datetime_format = StartOfDateType.AMBIGUOUS
 
     def _parse_message(self, mess):
-        if self._datetime_format in (StartOfDateType.DAY,
-                                     StartOfDateType.AMBIGUOUS):
-            time = datetimeparser.parse(mess.split('-', 1)[0],
-                                            dayfirst=True, fuzzy=True)
+        if self._datetime_format in (StartOfDateType.DAY, StartOfDateType.AMBIGUOUS):
+            time = datetimeparser.parse(
+                mess.split("-", 1)[0], dayfirst=True, fuzzy=True
+            )
         else:
-            time = datetimeparser.parse(mess.split('-', 1)[0],
-                                            dayfirst=False, fuzzy=True)
+            time = datetimeparser.parse(
+                mess.split("-", 1)[0], dayfirst=False, fuzzy=True
+            )
 
         author = self._get_message_author(mess)
-        if author != 'System':
-            body = mess.split('-', 1)[1].split(':', 1)[1].strip()
+        if author != "System":
+            body = mess.split("-", 1)[1].split(":", 1)[1].strip()
         else:
-            if len(mess.split('-', 1)) == 1:
+            if len(mess.split("-", 1)) == 1:
                 self._logger.warning(f"Failed to parse message: {mess}.")
                 self._logger.warning("Please report message format in GitHub.")
                 return None
-            body = mess.split('-', 1)[1]
+            body = mess.split("-", 1)[1]
 
-        parsed_message = {
-            'datetime': time,
-            'author': author,
-            'message': body
-        }
+        parsed_message = {"datetime": time, "author": author, "message": body}
         return parsed_message
 
     def _get_message_author(self, message):
         patterns = [
-            r'- ([+])([0-9 ]+)(:)',
-            r'- ([\w]+):',
-            r'- ([\w]+[\s]+[\w]+):',
-            r'- ([\w]+[\s]+[\w]+[\s]+[\w]+):',
+            r"- ([+])([0-9 ]+)(:)",
+            r"- ([\w]+):",
+            r"- ([\w]+[\s]+[\w]+):",
+            r"- ([\w]+[\s]+[\w]+[\s]+[\w]+):",
         ]
-        pattern = '|'.join(patterns)
+        pattern = "|".join(patterns)
         res = re.search(pattern, message)
-        return re.sub(r'|\-|\:', '', res.group(0)).strip() if res else 'System'
+        return re.sub(r"|\-|\:", "", res.group(0)).strip() if res else "System"
 
 
 class FacebookMessengerParser(Parser):
-    def __init__(self, filepath):
-        super().__init__(filepath)
-
-    def parse_file_into_df(self):
-        self._read_file_into_list()
-
-        parsed_messages = []
-        for mess in self.messages:
-            parsed_mess = self._parse_message(mess)
-            if parsed_mess:
-                parsed_messages.append(parsed_mess)
-
-        self.df = pd.DataFrame(parsed_messages)
-        self._logger.info("Finished parsing chatlog into dataframe.")
-        self._add_metadata()
-        self._logger.info("Finished adding metadata to dataframe.")
-
     def _read_file_into_list(self):
         self.messages = []
 
@@ -227,58 +213,35 @@ class FacebookMessengerParser(Parser):
         self._logger.info(f"Finished reading {len(self.messages)} messages.")
 
     def _parse_message(self, mess):
-        time = datetime.datetime.fromtimestamp(mess['timestamp_ms']/1000)
-        parsed_message = {
-            'datetime': time,
-            'author': mess["sender_name"],
-            'message': ''
-        }
-        if mess['type'] == 'Share':
-            parsed_message['message'] = mess['share']['link']
-        elif 'sticker' in mess:
-            parsed_message['message'] = mess['sticker']['uri']
+        if mess["type"] == "Share":
+            body = mess["share"]["link"]
+        elif "sticker" in mess:
+            body = mess["sticker"]["uri"]
         else:
-            parsed_message['message'] = mess['content']
+            body = mess["content"]
+
+        parsed_message = {
+            "datetime": datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000),
+            "author": mess["sender_name"],
+            "message": body,
+        }
         return parsed_message
 
 
 class TelegramJsonParser(Parser):
-    def __init__(self, filepath):
-        super().__init__(filepath)
-
-    def parse_file_into_df(self):
-        messages = []
-        with self._file.open(encoding='utf-8') as f:
+    def _read_file_into_list(self):
+        with self._file.open(encoding="utf-8") as f:
             json_objects = json.load(f)
-            messages = json_objects['messages']
-            self._logger.info(f"Finished reading {len(messages)} messages.")
+            self.messages = json_objects["messages"]
+            self._logger.info(f"Finished reading {len(self.messages)} messages.")
 
-        parsed_messages = []
-        for message in messages:
-            parsed_message = self._parse_message(message)
-            if parsed_message:
-                parsed_messages.append(parsed_message)
-
-        self.df = pd.DataFrame(parsed_messages)
-        self._logger.info("Finished parsing chatlog into dataframe.")
-        self._add_metadata()
-        self._logger.info("Finished adding metadata to dataframe.")
-
-    def _parse_message(self, message):
-        author = message['from']
-        time = datetime.datetime.fromtimestamp(int(message['date_unixtime']))
-        text = message['text']
-        return {
-            'datetime' : time,
-            'author' : author,
-            'message' : text
+    def _parse_message(self, mess):
+        parsed_message = {
+            "datetime": mess["from"],
+            "author": datetime.datetime.fromtimestamp(int(mess["date_unixtime"])),
+            "message": mess["text"],
         }
-
-    def _add_metadata(self):
-        self.df['weekday'] = self.df['datetime'].dt.day_name()
-        self.df["hour"] = self.df["datetime"].dt.hour
-        self.df['words'] = self.df['message'].apply(lambda s: len(s.split(' ')))
-        self.df['letters'] = self.df['message'].apply(lambda s: len(s))
+        return parsed_message
 
 
 class StartOfDateType(Enum):
