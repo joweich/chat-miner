@@ -1,54 +1,37 @@
-## Getting your data
----
-As of now, only WhatsApp and Signal chats are supported. 
+# chat-miner: parsing of chat histories
 
-### Steps to export a WhatsApp chat:
- - Go to the app
- - Go to Settings/Chats/Chat History
- - Tap *Export chat*
- - Select the chat you want to export
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-### Steps to export a Signal chat (from Signal-Desktop):
- - Open a Terminal
- - Run `pip install signal-export` (This will install [signal-export](https://github.com/carderne/signal-export) on your computer)
- - Run `sigexport ~/signal-chats` (This saves the Signal chats in `~/signal-chats`)
+chat-miner parses chat logs into a pandas dataframe.
+As of now, **WhatsApp**, **Signal**, **Telegram**, and **Facebook Messenger** export files are supported.
 
-### Steps to export a Telegram chat (from Telegram-Desktop):
-- Open the telegram-desktop app
-- Go to the chat you want to export
-- Click on the three dots (...) on the upper right side of the chat
-- Click on *export chat history*
-- For now this tool only accepts JSON parsing, so select the *json* format and click on export.
+## Export chat data
+[WhatsApp (via mobile app)](https://faq.whatsapp.com/196737011380816/?cms_id=196737011380816&published_only=true)
 
-### Steps to export a Facebook Messenger chat (from Mobile Apps):
-- Refer to [the official guide](https://www.facebook.com/help/messenger-app/713635396288741?cms_id=713635396288741&published_only=true)
+[Signal (via desktop app)](https://github.com/carderne/signal-export)
 
- ## Parsing the chatfile
- ---
- The following code uses the ``WhatsAppParser`` module to:
- - Read a chatfile
- - Infer its datetime format
- - Parse its content into a DataFrame
- - Add additonal metadata columns
- ```python
+[Telegram (via desktop app)](https://telegram.org/blog/export-and-more)
+
+[Facebook Messenger (via mobile app)](https://www.facebook.com/help/messenger-app/713635396288741?cms_id=713635396288741&published_only=true)
+
+## Usage
+Following code showcases the ``WhatsAppParser`` module.
+The usage of ``SignalParser``, ``TelegramJsonParser``, and ``FacebookMessengerParser`` follows the same pattern.
+```python
 from chatminer.chatparsers import WhatsAppParser
 
 parser = WhatsAppParser(FILEPATH)
 parser.parse_file_into_df()
 print(parser.df.describe())
 ```
-
-## Creating Visualizations
----
-### Sunburst Chart
+## Example visualizations
 ```python
 import chatminer.visualizations as vis
 vis.sunburst(parser.df)
 ```
 ![Sunburst](examples/sunburst.png)
 
----
-### Wordcloud
 ```python
 import chatminer.visualizations as vis
 stopwords = ['media', 'omitted', 'missed', 'voice', 'call']
