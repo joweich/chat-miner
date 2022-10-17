@@ -237,8 +237,8 @@ class TelegramJsonParser(Parser):
 
     def _parse_message(self, mess):
         parsed_message = {
-            "datetime": mess["from"],
-            "author": datetime.datetime.fromtimestamp(int(mess["date_unixtime"])),
+            "author": mess["from"],
+            "datetime": datetime.datetime.fromtimestamp(int(mess["date_unixtime"])),
             "message": mess["text"],
         }
         return parsed_message
