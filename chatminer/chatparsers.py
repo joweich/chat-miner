@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
 from dateutil import parser as datetimeparser
+from bs4 import BeautifulSoup
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO)
@@ -243,6 +244,26 @@ class TelegramJsonParser(Parser):
         }
         return parsed_message
 
+class TelegramHtmlParser(Parser):
+    def _read_file_into_list(self):
+        with self._file.open(encoding="utf-8") as f:
+            soup = BeautifulSoup(f, "html.parser")
+            self.messages = list(soup.find_all("div", class_="message default clearfix"))
+            self._logger.info(f"Finished reading {len(self.messages)} messages.")
+
+    def _parse_message(self, mess):
+        from_name = mess.find("div", class_="from_name")
+        message = from_name.find_next("div")
+        if 'text' in message['class']:
+            message = message.text
+        else:
+            message = 'Media'
+        parsed_message = {
+            "author": from_name.text,
+            "datetime": datetimeparser.parse(mess.find("div", class_="date")['title']),
+            "message": message,
+        }
+        return parsed_message
 
 class StartOfDateType(Enum):
     DAY = 1
