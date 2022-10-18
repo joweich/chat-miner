@@ -1,6 +1,6 @@
+beautifulsoup4
 pandas
 numpy
-seaborn
 matplotlib
 wordcloud
 python-dateutil
