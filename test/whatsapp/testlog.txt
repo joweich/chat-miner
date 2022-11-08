@@ -16,3 +16,4 @@ Cras scelerisque neque.
 9/24/2019 11:30 a.m. - John Doe: Testing am
 12/24/2019 11:30 p. m. - John Doe: Testing spacing in pm
 09/10/22 10:37:00 p.m. - John Doe: Testing date and time formats
+[09/10/22 10:37:00 p.m.] John Doe: Testing brackets

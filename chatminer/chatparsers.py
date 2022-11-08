@@ -126,6 +126,9 @@ class WhatsAppParser(Parser):
 
         for line in messages_raw:
             line = line.strip()
+            #remove first bracket and replace second one with a dash so that _parse_message can differ between the datetime and the message (Only for for IOS)
+            if line[0] == '[':
+                line = line.replace('[','',1).replace(']','-',1)
 
             if not line:
                 continue
