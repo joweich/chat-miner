@@ -95,8 +95,8 @@ class SignalParser(Parser):
         return parsed_message
 
 
-class WhatsAppParser(Parser):
-    DATEREG = r"^((\d{1})|(\d{2}))((\.)|(\/))((\d{1})|(\d{2}))((\.)|(\/))((\d{2}))"
+class WhatsAppParser(Parser): 
+    DATEREG = r"(^((\d{1})|(\d{2}))((\.)|(\/))((\d{1})|(\d{2}))((\.)|(\/))((\d{4})|(\d{2})))"
 
     def __init__(self, filepath):
         super().__init__(filepath)

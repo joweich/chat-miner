@@ -12,3 +12,7 @@ Cras scelerisque neque.
 12/24/14, 17:08 - +12 345 578 created group "Groupname"
 12/24/14, 17:08 - You were added
 7/16/17, 19:13 - +12 345 578: Lorem ipsum.
+9/24/2019 11:30 p.m. - John Doe: Hello world
+9/24/2019 11:30 a.m. - John Doe: Testing am
+12/24/2019 11:30 p. m. - John Doe: Testing spacing in pm
+09/10/22 10:37:00 p.m. - John Doe: Testing date and time formats

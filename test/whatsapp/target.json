@@ -1,3 +1,7 @@
+{"datetime":1662849420000,"author":"John Doe","message":"Testing date and time formats","weekday":"Saturday","hour":22,"words":5,"letters":29}
+{"datetime":1577230200000,"author":"John Doe","message":"Testing spacing in pm","weekday":"Tuesday","hour":23,"words":4,"letters":21}
+{"datetime":1569324600000,"author":"John Doe","message":"Testing am","weekday":"Tuesday","hour":11,"words":2,"letters":10}
+{"datetime":1569367800000,"author":"John Doe","message":"Hello world","weekday":"Tuesday","hour":23,"words":2,"letters":11}
 {"datetime":1500232380000,"author":"+12 345 578","message":"Lorem ipsum.","weekday":"Sunday","hour":19,"words":2,"letters":12}
 {"datetime":1419440880000,"author":"System","message":" You were added","weekday":"Wednesday","hour":17,"words":4,"letters":15}
 {"datetime":1419440880000,"author":"System","message":" +12 345 578 created group \"Groupname\"","weekday":"Wednesday","hour":17,"words":7,"letters":38}
