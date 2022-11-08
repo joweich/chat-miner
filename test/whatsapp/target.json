@@ -1,3 +1,4 @@
+{"datetime":1662849420000,"author":"John Doe","message":"Testing date dashes","weekday":"Saturday","hour":22,"words":3,"letters":19}
 {"datetime":1662849420000,"author":"John Doe","message":"Testing brackets","weekday":"Saturday","hour":22,"words":2,"letters":16}
 {"datetime":1662849420000,"author":"John Doe","message":"Testing date and time formats","weekday":"Saturday","hour":22,"words":5,"letters":29}
 {"datetime":1577230200000,"author":"John Doe","message":"Testing spacing in pm","weekday":"Tuesday","hour":23,"words":4,"letters":21}
