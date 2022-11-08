@@ -95,7 +95,7 @@ class SignalParser(Parser):
         return parsed_message
 
 
-class WhatsAppParser(Parser): 
+class WhatsAppParser(Parser):
     DATEREG = r"(^\[?((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2})))"
 
     def __init__(self, filepath):
@@ -144,15 +144,14 @@ class WhatsAppParser(Parser):
 
         self._logger.info(f"Finished reading {len(self.messages)} messages.")
 
-    def _format_datetime(self,mess):
-        #remove first bracket and replace second one with a dash so that _parse_message can differ between the datetime and the message (Only for for IOS)
-        if mess[0] == '[':
-            mess = mess.replace('[','',1).replace(']','-',1)
-        #replace - for / in DD-MM-YY formats
-        if (mess[1] == '-' or mess[2] == '-'):
-            mess = mess.replace('-','/',2)
+    def _format_datetime(self, mess):
+        # remove first bracket and replace second one with a dash so that _parse_message can differ between the datetime and the message (Only for for IOS)
+        if mess[0] == "[":
+            mess = mess.replace("[", "", 1).replace("]", "-", 1)
+        # replace - for / in DD-MM-YY formats
+        if mess[1] == "-" or mess[2] == "-":
+            mess = mess.replace("-", "/", 2)
         return mess
-        
 
     def _infer_datatime_format(self):
         max_first = 0
