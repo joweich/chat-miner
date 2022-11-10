@@ -242,8 +242,15 @@ class TelegramJsonParser(Parser):
             if type(mess["text"]) is str:
                 text = mess["text"]
             elif type(mess["text"]) is list:
-                assert all([(type(m) is dict and "text" in m) or type(m) is str for m in mess["text"]])
-                text = " ".join(map(lambda m: m["text"] if type(m) is dict else m, mess["text"]))
+                assert all(
+                    [
+                        (type(m) is dict and "text" in m) or type(m) is str
+                        for m in mess["text"]
+                    ]
+                )
+                text = " ".join(
+                    map(lambda m: m["text"] if type(m) is dict else m, mess["text"])
+                )
             else:
                 raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
 
@@ -253,7 +260,7 @@ class TelegramJsonParser(Parser):
                 "message": text,
             }
             return parsed_message
-        
+
         return False
 
 
