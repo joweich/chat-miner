@@ -126,7 +126,7 @@ class WhatsAppParser(Parser):
             messages_raw = reversed(list(f))
 
         for line in messages_raw:
-            line = unicodedata.normalize('NFKC',line.strip())
+            line = unicodedata.normalize("NFKC", line.strip())
 
             if not line:
                 continue
