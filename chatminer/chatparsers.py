@@ -247,12 +247,31 @@ class TelegramJsonParser(Parser):
             self._logger.info(f"Finished reading {len(self.messages)} messages.")
 
     def _parse_message(self, mess):
-        parsed_message = {
-            "author": mess["from"],
-            "datetime": datetime.datetime.fromtimestamp(int(mess["date_unixtime"])),
-            "message": mess["text"],
-        }
-        return parsed_message
+        if "from" in mess and "text" in mess:
+            text = ""
+            if type(mess["text"]) is str:
+                text = mess["text"]
+            elif type(mess["text"]) is list:
+                assert all(
+                    [
+                        (type(m) is dict and "text" in m) or type(m) is str
+                        for m in mess["text"]
+                    ]
+                )
+                text = " ".join(
+                    map(lambda m: m["text"] if type(m) is dict else m, mess["text"])
+                )
+            else:
+                raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
+
+            parsed_message = {
+                "author": mess["from"],
+                "datetime": datetime.datetime.fromtimestamp(int(mess["date_unixtime"])),
+                "message": text,
+            }
+            return parsed_message
+
+        return False
 
 
 class TelegramHtmlParser(Parser):
