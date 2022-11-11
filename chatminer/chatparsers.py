@@ -1,3 +1,4 @@
+import unicodedata
 import json
 import logging
 import re
@@ -125,7 +126,7 @@ class WhatsAppParser(Parser):
             messages_raw = reversed(list(f))
 
         for line in messages_raw:
-            line = line.strip()
+            line = unicodedata.normalize("NFKC", line.strip())
 
             if not line:
                 continue
