@@ -18,3 +18,4 @@ Cras scelerisque neque.
 09/10/22 10:37:00 p.m. - John Doe: Testing date and time formats
 [09/10/22 10:37:00 p.m.] John Doe: Testing brackets
 09-10-2022 10:37:00 p.m. - John Doe: Testing date dashes
+09/10/22, 10:37 p. m. - John Doe: Testing abnormal unicode
