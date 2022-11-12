@@ -96,7 +96,7 @@ class SignalParser(Parser):
 
 class WhatsAppParser(Parser):
     def __init__(self, filepath):
-        super.__init__(self, filepath)
+        super.__init__(filepath)
         self._read_file_into_list()
         self._infer_datetime_format()
 
