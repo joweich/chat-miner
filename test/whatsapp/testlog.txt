@@ -21,3 +21,4 @@ Cras scelerisque neque.
 [10.24.21, 15:21:43] John-John Doe: Testing dash in author's first name
 10.24.21, 15:21:43 - John-John Doe: Testing dash in author's first name
 [10.24.21, 15:21:43] John-John Doe: Testing dash - in message body
+09/10/22, 10:37 p. m. - John Doe: Testing abnormal unicode

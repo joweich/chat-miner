@@ -1,3 +1,4 @@
+{"datetime":1662849420000,"author":"John Doe","message":"Testing abnormal unicode","weekday":"Saturday","hour":22,"words":3,"letters":24}
 {"datetime":1635088903000,"author":"John-John Doe","message":"Testing dash - in message body","weekday":"Sunday","hour":15,"words":6,"letters":30}
 {"datetime":1635088903000,"author":"John-John Doe","message":"Testing dash in author's first name","weekday":"Sunday","hour":15,"words":6,"letters":35}
 {"datetime":1635088903000,"author":"John-John Doe","message":"Testing dash in author's first name","weekday":"Sunday","hour":15,"words":6,"letters":35}
