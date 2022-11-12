@@ -1,3 +1,6 @@
+{"datetime":1635088903000,"author":"John-John Doe","message":"Testing dash - in message body","weekday":"Sunday","hour":15,"words":6,"letters":30}
+{"datetime":1635088903000,"author":"John-John Doe","message":"Testing dash in author's first name","weekday":"Sunday","hour":15,"words":6,"letters":35}
+{"datetime":1635088903000,"author":"John-John Doe","message":"Testing dash in author's first name","weekday":"Sunday","hour":15,"words":6,"letters":35}
 {"datetime":1662849420000,"author":"John Doe","message":"Testing date dashes","weekday":"Saturday","hour":22,"words":3,"letters":19}
 {"datetime":1662849420000,"author":"John Doe","message":"Testing brackets","weekday":"Saturday","hour":22,"words":2,"letters":16}
 {"datetime":1662849420000,"author":"John Doe","message":"Testing date and time formats","weekday":"Saturday","hour":22,"words":5,"letters":29}
@@ -5,9 +8,9 @@
 {"datetime":1569324600000,"author":"John Doe","message":"Testing am","weekday":"Tuesday","hour":11,"words":2,"letters":10}
 {"datetime":1569367800000,"author":"John Doe","message":"Hello world","weekday":"Tuesday","hour":23,"words":2,"letters":11}
 {"datetime":1500232380000,"author":"+12 345 578","message":"Lorem ipsum.","weekday":"Sunday","hour":19,"words":2,"letters":12}
-{"datetime":1419440880000,"author":"System","message":" You were added","weekday":"Wednesday","hour":17,"words":4,"letters":15}
-{"datetime":1419440880000,"author":"System","message":" +12 345 578 created group \"Groupname\"","weekday":"Wednesday","hour":17,"words":7,"letters":38}
-{"datetime":1499369100000,"author":"System","message":" Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Tap to learn more.","weekday":"Thursday","hour":19,"words":26,"letters":140}
+{"datetime":1419440880000,"author":"System","message":"You were added","weekday":"Wednesday","hour":17,"words":3,"letters":14}
+{"datetime":1419440880000,"author":"System","message":"+12 345 578 created group \"Groupname\"","weekday":"Wednesday","hour":17,"words":6,"letters":37}
+{"datetime":1499369100000,"author":"System","message":"Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Tap to learn more.","weekday":"Thursday","hour":19,"words":25,"letters":139}
 {"datetime":1579359180000,"author":"Jahn Doe","message":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non tincidunt erat. Nullam suscipit diam dolor, non pretium leo semper eu. Aliquam pellentesque facilisis nunc eu rhoncus. Cras scelerisque neque.","weekday":"Saturday","hour":14,"words":30,"letters":216}
 {"datetime":1579294140000,"author":"Jahn Doe","message":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero.","weekday":"Friday","hour":20,"words":10,"letters":69}
 {"datetime":1577186580000,"author":"John Doe","message":"Lorem ipsum : dolor sit amet.","weekday":"Tuesday","hour":11,"words":6,"letters":29}
