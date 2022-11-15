@@ -8,8 +8,14 @@ from pathlib import Path
 from dateutil import parser as datetimeparser
 from bs4 import BeautifulSoup
 import pandas as pd
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    datefmt="%d.%m.%Y %H:%M:%S",
+)
 
 
 class Parser(ABC):
@@ -20,29 +26,34 @@ class Parser(ABC):
         self.messages = None
         self.df = None
 
-        self._logger = (
-            logging.getLogger(__name__)
-            .getChild(self.__class__.__name__)
-            .getChild(str(id(self)))
+        self._logger = logging.getLogger(__name__)
+        self._logger.info(
+            """
+            Depending on the platform, the message format in chat logs might not be
+            standardized accross devices/versions/localization and might change over
+            time. Please report issues including your message format via GitHub.
+            """
         )
-
-    def parse_file_into_df(self):
+        self._logger.info("Initialized parser.")
         self._read_file_into_list()
 
+    def parse_file_into_df(self):
+        self._logger.info("Starting parsing raw messages into dataframe...")
         parsed_messages = []
-        for mess in self.messages:
-            parsed_mess = self._parse_message(mess)
-            if parsed_mess:
-                parsed_messages.append(parsed_mess)
+        with logging_redirect_tqdm():
+            for mess in tqdm(self.messages):
+                parsed_mess = self._parse_message(mess)
+                if parsed_mess:
+                    parsed_messages.append(parsed_mess)
 
         self.df = pd.DataFrame(parsed_messages)
-        self._logger.info("Finished parsing chatlog into dataframe.")
         self._add_metadata()
-        self._logger.info("Finished adding metadata to dataframe.")
+        self._logger.info("Finished parsing raw messages into dataframe.")
 
     def write_df_to_csv(self, filename):
         if self.df is not None:
             self.df.to_csv(filename, index=False)
+            self._logger.info("Finished writing dataframe to csv.")
         else:
             self._logger.error("Failed writing to csv. Parse file first.")
 
@@ -62,18 +73,22 @@ class Parser(ABC):
 
 
 class SignalParser(Parser):
-    DATEREG = r"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]"
-
     def _read_file_into_list(self):
+        def _is_new_message(line):
+            regex = r"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]"
+            return re.match(regex, line)
+
+        self._logger.info("Starting reading raw messages into memory...")
         self.messages = []
+        buffer = []
         with self._file.open(encoding="utf-8") as f:
             messages_raw = reversed(list(f))
-        buffer = []
+
         for line in messages_raw:
             line = line.strip()
             if not line:
                 continue
-            if re.match(SignalParser.DATEREG, line):
+            if _is_new_message(line):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
@@ -83,7 +98,9 @@ class SignalParser(Parser):
                     self.messages.append(line)
             else:
                 buffer.append(line)
-        self._logger.info(f"Finished reading {len(self.messages)} messages.")
+        self._logger.info(
+            "Finished reading %i raw messages into memory.", len(self.messages)
+        )
 
     def _parse_message(self, mess):
         datetime_raw, mess = mess.split("]", 1)
@@ -98,29 +115,16 @@ class SignalParser(Parser):
 class WhatsAppParser(Parser):
     def __init__(self, filepath):
         super().__init__(filepath)
-        self._read_file_into_list()
         self._infer_datetime_format()
-
-    def parse_file_into_df(self):
-        parsed_messages = []
-        for mess in self.messages:
-            parsed_mess = self._parse_message(mess)
-            if parsed_mess:
-                parsed_messages.append(parsed_mess)
-
-        self.df = pd.DataFrame(parsed_messages)
-        self._logger.info("Finished parsing chatlog into dataframe.")
-        self._add_metadata()
-        self._logger.info("Finished adding metadata to dataframe.")
 
     def _read_file_into_list(self):
         def _is_new_message(line):
             regex = r"(^\[?((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2})))"
             return re.match(regex, line)
 
+        self._logger.info("Starting reading raw messages into memory...")
         self.messages = []
         buffer = []
-
         with self._file.open(encoding="utf-8") as f:
             messages_raw = reversed(list(f))
 
@@ -141,7 +145,9 @@ class WhatsAppParser(Parser):
             else:
                 buffer.append(line)
 
-        self._logger.info(f"Finished reading {len(self.messages)} messages.")
+        self._logger.info(
+            "Finished reading %i raw messages into memory.", len(self.messages)
+        )
 
     def _infer_datetime_format(self):
         max_first = 0
@@ -171,7 +177,7 @@ class WhatsAppParser(Parser):
         timestamp_author_sep = " - " if mess[0].isnumeric() else "] "
         if timestamp_author_sep not in mess:
             self._logger.warning(
-                f"Failed to parse message: {mess}. Please report message format in GitHub."
+                "Failed to parse message. Message [%s] will be skipped.", mess
             )
             return None
 
@@ -191,14 +197,16 @@ class WhatsAppParser(Parser):
 
 class FacebookMessengerParser(Parser):
     def _read_file_into_list(self):
+        self._logger.info("Starting reading raw messages into memory...")
         self.messages = []
-
         with self._file.open(encoding="utf-8") as f:
             messages_raw = reversed((json.load(f)["messages"]))
 
         for line in messages_raw:
             self.messages.append(line)
-        self._logger.info(f"Finished reading {len(self.messages)} messages.")
+        self._logger.info(
+            "Finished reading %i raw messages into memory.", len(self.messages)
+        )
 
     def _parse_message(self, mess):
         if mess["type"] == "Share":
@@ -218,10 +226,14 @@ class FacebookMessengerParser(Parser):
 
 class TelegramJsonParser(Parser):
     def _read_file_into_list(self):
+        self._logger.info("Starting reading raw messages into memory...")
         with self._file.open(encoding="utf-8") as f:
             json_objects = json.load(f)
-            self.messages = json_objects["messages"]
-            self._logger.info(f"Finished reading {len(self.messages)} messages.")
+
+        self.messages = json_objects["messages"]
+        self._logger.info(
+            "Finished reading %i raw messages into memory.", len(self.messages)
+        )
 
     def _parse_message(self, mess):
         if "from" in mess and "text" in mess:
@@ -253,12 +265,15 @@ class TelegramJsonParser(Parser):
 
 class TelegramHtmlParser(Parser):
     def _read_file_into_list(self):
+        self._logger.info("Starting reading raw messages into memory...")
         with self._file.open(encoding="utf-8") as f:
             soup = BeautifulSoup(f, "html.parser")
             self.messages = list(
                 soup.find_all("div", class_="message default clearfix")
             )
-            self._logger.info(f"Finished reading {len(self.messages)} messages.")
+        self._logger.info(
+            "Finished reading %i raw messages into memory.", len(self.messages)
+        )
 
     def _parse_message(self, mess):
         from_name = mess.find("div", class_="from_name")

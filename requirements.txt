@@ -4,3 +4,4 @@ numpy
 matplotlib
 wordcloud
 python-dateutil
+tqdm
