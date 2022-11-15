@@ -9,7 +9,11 @@ from dateutil import parser as datetimeparser
 from bs4 import BeautifulSoup
 import pandas as pd
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    datefmt="%d.%m.%Y %H:%M:%S",
+)
 
 
 class Parser(ABC):
@@ -20,11 +24,7 @@ class Parser(ABC):
         self.messages = None
         self.df = None
 
-        self._logger = (
-            logging.getLogger(__name__)
-            .getChild(self.__class__.__name__)
-            .getChild(str(id(self)))
-        )
+        self._logger = logging.getLogger(__name__)
 
     def parse_file_into_df(self):
         self._read_file_into_list()
