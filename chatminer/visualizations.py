@@ -7,6 +7,7 @@ from wordcloud import WordCloud, STOPWORDS
 from dateutil.relativedelta import relativedelta
 from matplotlib.patches import Polygon
 from matplotlib.colors import ColorConverter, ListedColormap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 def sunburst(df: pd.DataFrame):
@@ -167,7 +168,11 @@ def calendar_heatmap(
 
     kwargs["linewidth"] = linewidth
     kwargs["edgecolors"] = linecolor
-    ax.pcolormesh(plot_data, vmin=vmin, vmax=vmax, cmap=cmap, **kwargs)
+    pc = ax.pcolormesh(plot_data, vmin=vmin, vmax=vmax, cmap=cmap, **kwargs)
+
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="3%", pad=0.08)
+    plt.colorbar(pc, cax=cax, ticks=[min(vmin), (min(vmin) + max(vmax)) / 2, max(vmax)])
 
     ax.set(xlim=(0, plot_data.shape[1]), ylim=(0, plot_data.shape[0]))
 
@@ -230,10 +235,9 @@ def calendar_heatmap(
     ax.set_xticks(xticks)
     ax.set_xticklabels(labels)
     ax.set_ylabel("")
-    ax.yaxis.set_ticks_position("right")
+    ax.yaxis.set_ticks_position("left")
     ax.set_yticks([6 - i + 0.5 for i in dayticks])
     ax.set_yticklabels(
         [daylabels[i] for i in dayticks], rotation="horizontal", va="center"
     )
-
     return ax
