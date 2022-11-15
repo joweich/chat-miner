@@ -157,10 +157,10 @@ def calendar_heatmap(
     df.loc[(df.index.month == 1) & (df.week > 50), "week"] = 0
     df.loc[(df.index.month == 12) & (df.week < 10), "week"] = df.week.max() + 1
 
-    plot_data = df.pivot("day", "week", "message").values[::-1]
+    plot_data = df.pivot(index="day", columns="week", values="message").values[::-1]
     plot_data = np.ma.masked_where(np.isnan(plot_data), plot_data)
 
-    fill_data = df.pivot("day", "week", "fill").values[::-1]
+    fill_data = df.pivot(index="day", columns="week", values="message").values[::-1]
     fill_data = np.ma.masked_where(np.isnan(fill_data), fill_data)
 
     ax.pcolormesh(fill_data, vmin=0, vmax=1, cmap=ListedColormap([fillcolor]))
