@@ -8,6 +8,8 @@ from pathlib import Path
 from dateutil import parser as datetimeparser
 from bs4 import BeautifulSoup
 import pandas as pd
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,10 +40,11 @@ class Parser(ABC):
     def parse_file_into_df(self):
         self._logger.info("Starting parsing raw messages into dataframe...")
         parsed_messages = []
-        for mess in self.messages:
-            parsed_mess = self._parse_message(mess)
-            if parsed_mess:
-                parsed_messages.append(parsed_mess)
+        with logging_redirect_tqdm():
+            for mess in tqdm(self.messages):
+                parsed_mess = self._parse_message(mess)
+                if parsed_mess:
+                    parsed_messages.append(parsed_mess)
 
         self.df = pd.DataFrame(parsed_messages)
         self._add_metadata()
