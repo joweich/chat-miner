@@ -1,0 +1,16 @@
+{
+    "messages": [
+        {
+            "sender_name": "Allan Smith",
+            "timestamp_ms": 1668628203612,
+            "content": "Hello John",
+            "type": "Generic"
+        },
+        {
+            "sender_name": "John Doe",
+            "timestamp_ms": 1668628203612,
+            "content": "Hello Allan",
+            "type": "Generic"
+        }
+    ]
+}

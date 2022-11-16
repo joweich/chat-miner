@@ -1,0 +1,4 @@
+[
+    {"datetime":1668628203612,"author":"John Doe","message":"Hello Allan","weekday":"Wednesday","hour":19,"words":2,"letters":11},
+    {"datetime":1668628203612,"author":"Allan Smith","message":"Hello John","weekday":"Wednesday","hour":19,"words":2,"letters":10}
+]
