@@ -38,3 +38,10 @@ stopwords = ['media', 'omitted', 'missed', 'voice', 'call']
 vis.wordcloud(parser.df, stopwords)
 ```
 ![Wordcloud](examples/wordcloud.png)
+
+```python
+import chatminer.visualizations as vis
+vis.calendar_heatmap(parser.df,2022)
+plt.show()
+```
+![HeatMap](examples/heatmap.png)
