@@ -40,8 +40,11 @@ vis.wordcloud(parser.df, stopwords)
 ![Wordcloud](examples/wordcloud.png)
 
 ```python
+import matplotlib.pyplot as plt
 import chatminer.visualizations as vis
-vis.calendar_heatmap(parser.df,2022)
+
+fig, ax = plt.subplots(figsize=(12,2))
+vis.calendar_heatmap(parser.df, year=2021, linewidth=0, monthly_border=True, ax=ax)
 plt.show()
 ```
 ![HeatMap](examples/heatmap.png)
