@@ -87,30 +87,26 @@ def sunburst(
     return ax
 
 
-def wordcloud(df: pd.DataFrame, stopwords: list):
-    messages = [word.split() for word in df["message"].values]
+def wordcloud(df, ax=None, stopwords=None, **kwargs):
+    messages = [mess.split() for mess in df["message"].values]
     words = [word.lower() for sublist in messages for word in sublist]
 
-    stopwords = STOPWORDS.update(stopwords)
+    if stopwords:
+        stopwords = STOPWORDS.update(stopwords)
 
-    wordcloud = WordCloud(
+    wc = WordCloud(
         stopwords=stopwords,
-        max_font_size=90,
-        width=800,
-        height=400,
-        background_color="white",
-        colormap="magma",
-        min_word_length=2,
-        max_words=400,
-        min_font_size=12,
+        **kwargs,
     )
-    wordcloud.generate(" ".join(words))
+    wc.generate(" ".join(words))
 
-    plt.figure(figsize=(8, 4))
-    plt.imshow(wordcloud, interpolation="bilinear")
+    if ax is None:
+        _, ax = plt.subplots()
+
+    ax.imshow(wc, interpolation="bilinear")
     plt.axis("off")
     plt.tight_layout()
-    plt.show()
+    return ax
 
 
 def calendar_heatmap(
@@ -128,7 +124,7 @@ def calendar_heatmap(
     monthticks=True,
     monthly_border=False,
     ax=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Adapted from https://github.com/MarvinT/calmap.
