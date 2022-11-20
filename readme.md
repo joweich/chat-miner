@@ -13,7 +13,7 @@ cd chat-miner
 pip install -r requirements.txt
 ```
 
-## 2. Export chat logs
+## 2. Exporting chat logs
 Have a look at the official tutorials for [WhatsApp](https://faq.whatsapp.com/196737011380816/?cms_id=196737011380816&published_only=true), [Signal](https://github.com/carderne/signal-export), [Telegram](https://telegram.org/blog/export-and-more), or [Facebook Messenger](https://www.facebook.com/help/messenger-app/713635396288741?cms_id=713635396288741&published_only=true) to learn how to export chat logs for your platform.
 
 ## 3. Parsing
@@ -38,7 +38,7 @@ ax[1] = vis.calendar_heatmap(parser.df, year=2021, linewidth=0, monthly_border=T
 ```
 ![HeatMap](examples/heatmap.svg)
 
-### 4.2 Heatmap: Sunburst: Message count per daytime
+### 4.2 Sunburst: Message count per daytime
 ```python
 fig, ax = plt.subplots(1, 2, figsize=(7, 3), subplot_kw={'projection': 'polar'})
 ax[0] = vis.sunburst(parser.df, highlight_max=True, isolines=[2500, 5000], isolines_relative=False, ax=ax[0])
