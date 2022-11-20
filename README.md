@@ -7,6 +7,12 @@
 
 
 ## 1. Installation
+Latest release including dependencies can be installed via PyPI:
+```sh
+pip install chat-miner
+```
+
+If you're interested in contributing, running the latest source code, or just like to build everything yourself:
 ```sh
 git clone https://github.com/joweich/chat-miner.git
 cd chat-miner
@@ -36,7 +42,10 @@ fig, ax = plt.subplots(2, 1, figsize=(9, 3))
 ax[0] = vis.calendar_heatmap(parser.df, year=2020, cmap='Oranges', ax=ax[0])
 ax[1] = vis.calendar_heatmap(parser.df, year=2021, linewidth=0, monthly_border=True, ax=ax[1])
 ```
-![HeatMap](examples/heatmap.svg)
+
+<p align="center">
+  <img src="examples/heatmap.svg">
+</p>
 
 ### 4.2 Sunburst: Message count per daytime
 ```python
@@ -44,13 +53,18 @@ fig, ax = plt.subplots(1, 2, figsize=(7, 3), subplot_kw={'projection': 'polar'})
 ax[0] = vis.sunburst(parser.df, highlight_max=True, isolines=[2500, 5000], isolines_relative=False, ax=ax[0])
 ax[1] = vis.sunburst(parser.df, highlight_max=False, isolines=[0.5, 1], color='C1', ax=ax[1])
 ```
-![Sunburst](examples/sunburst.svg)
 
-### 4.3 Wordcloud: Visualize word frequencies
+<p align="center">
+  <img src="examples/sunburst.svg">
+</p>
+
+### 4.3 Wordcloud: Word frequencies
 ```python
 fig, ax = plt.subplots(figsize=(8, 3))
 stopwords = ['these', 'are', 'stopwords']
 kwargs={"background_color": "white", "width": 800, "height": 300, "max_words": 500}
 ax = vis.wordcloud(parser.df, ax=ax, stopwords=stopwords, **kwargs)
 ```
-![Wordcloud](examples/wordcloud.svg)
+<p align="center">
+  <img src="examples/wordcloud.svg">
+</p>
