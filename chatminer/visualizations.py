@@ -171,7 +171,9 @@ def calendar_heatmap(
 
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="3%", pad=0.08)
-    plt.colorbar(pc, cax=cax, ticks=[min(vmin), (min(vmin) + max(vmax)) / 2, max(vmax)])
+    plt.colorbar(
+        pc, cax=cax, ticks=[min(vmin), int((min(vmin) + max(vmax)) / 2), max(vmax)]
+    )
 
     ax.set(xlim=(0, plot_data.shape[1]), ylim=(0, plot_data.shape[0]))
 
@@ -239,4 +241,5 @@ def calendar_heatmap(
     ax.set_yticklabels(
         [daylabels[i] for i in dayticks], rotation="horizontal", va="center"
     )
+    plt.tight_layout()
     return ax
