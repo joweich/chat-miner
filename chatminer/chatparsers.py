@@ -119,7 +119,7 @@ class WhatsAppParser(Parser):
 
     def _read_file_into_list(self):
         def _is_new_message(line):
-            regex = r"(^\[?((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2})))"
+            regex = r"(^[\u200e]?\[?((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2})))"
             return re.match(regex, line)
 
         self._logger.info("Starting reading raw messages into memory...")
@@ -129,16 +129,17 @@ class WhatsAppParser(Parser):
             messages_raw = reversed(list(f))
 
         for line in messages_raw:
-            line = unicodedata.normalize("NFKC", line.strip())
-
             if not line:
                 continue
 
             if _is_new_message(line):
+                line = line.replace("\u200e", "")
+                line = unicodedata.normalize("NFKC", line.strip())
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
-                    self.messages.append(" ".join(buffer))
+                    joined_buffer = " ".join(buffer)
+                    self.messages.append("".join(joined_buffer.splitlines()))
                     buffer.clear()
                 else:
                     self.messages.append(line)

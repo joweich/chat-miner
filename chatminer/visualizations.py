@@ -10,104 +10,103 @@ from matplotlib.colors import ColorConverter, ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-def sunburst(df: pd.DataFrame):
+def sunburst(
+    df,
+    color="C0",
+    edgecolor="black",
+    linewidth=0.5,
+    highlight_max=False,
+    isolines=None,
+    isolines_relative=True,
+    ax=None,
+):
     df_circle = df.groupby(by="hour")["message"].count().reset_index()
 
-    time = df_circle["hour"]
-    count = df_circle["message"]
+    hourly_count = np.zeros(24)
+    hourly_count[df_circle["hour"]] = df_circle["message"]
 
-    c = np.zeros(24)
-    c[time] = count
-    count = c
+    if ax is None:
+        _, ax = plt.subplots(subplot_kw={"projection": "polar"})
 
-    ax = plt.subplot(111, projection="polar")
-
-    x = np.arange(0, 2 * np.pi, 2 * np.pi / len(count)) + np.pi / len(count)
-
-    ax.bar(x, count, width=2 * np.pi / len(count), alpha=0.4, color="#e76f51", bottom=0)
-
-    max_ind = np.argmax(count)
-    ax.bar(
-        x[max_ind],
-        count[max_ind],
-        bottom=0,
-        width=2 * np.pi / len(count),
-        alpha=1,
-        color="#e76f51",
+    x = np.arange(0, 2 * np.pi, 2 * np.pi / len(hourly_count)) + np.pi / len(
+        hourly_count
     )
+
+    alpha = 0.6 if highlight_max else 1
+    ax.bar(
+        x,
+        hourly_count,
+        width=2 * np.pi / len(hourly_count),
+        alpha=alpha,
+        color=color,
+        bottom=0,
+        edgecolor=edgecolor,
+        linewidth=linewidth,
+    )
+
+    if highlight_max:
+        max_ind = np.argmax(hourly_count)
+        ax.bar(
+            x[max_ind],
+            hourly_count[max_ind],
+            bottom=0,
+            width=2 * np.pi / len(hourly_count),
+            alpha=1,
+            color=color,
+            edgecolor=edgecolor,
+            linewidth=linewidth,
+        )
 
     ax.bar(
         x,
-        np.max(count) * np.ones(len(count)),
-        width=2 * np.pi / len(count),
-        alpha=0.15,
+        np.max(hourly_count) * np.ones(len(hourly_count)),
+        width=2 * np.pi / len(hourly_count),
+        alpha=0.1,
         bottom=0,
-        color="#cb997e",
-        edgecolor="black",
+        color=color,
     )
 
     ax.set_theta_direction(-1)
-    ax.grid(False)
-    ax.spines["polar"].set_visible(False)
+    ax.spines["polar"].set_visible(True)
+    ax.set_rmax(np.max(hourly_count))
+    ax.grid(True)
+    ax.set_axisbelow(True)
+
     ax.set_theta_offset(np.pi / 2)
-    ax.set_xticks(np.linspace(0, 2 * np.pi, 24, endpoint=False))
-    ticks = [
-        "12 AM",
-        "",
-        "",
-        "3 AM",
-        "",
-        "",
-        "6 AM",
-        "",
-        "",
-        "9 AM",
-        "",
-        "",
-        "12 PM",
-        "",
-        "",
-        "3 PM",
-        "",
-        "",
-        "6 PM",
-        "",
-        "",
-        "9 PM",
-        "",
-        "",
-    ]
+    ax.set_xticks(np.linspace(0, 2 * np.pi, 8, endpoint=False))
+    ticks = [f"{x}:00" for x in range(0, 24, 3)]
     ax.set_xticklabels(ticks)
-    ax.set_title("Messages per Daytime", fontdict={"fontsize": 15})
-    plt.setp(ax.get_yticklabels(), visible=False)
+
+    if isolines:
+        if isolines_relative:
+            ax.set_yticks(np.asarray(isolines) * np.max(hourly_count))
+        else:
+            ax.set_yticks(isolines)
+
     plt.tight_layout()
-    plt.show()
+    return ax
 
 
-def wordcloud(df: pd.DataFrame, stopwords: list):
-    messages = [word.split() for word in df["message"].values]
+def wordcloud(df, ax=None, stopwords=None, **kwargs):
+    messages = [mess.split() for mess in df["message"].values]
     words = [word.lower() for sublist in messages for word in sublist]
 
-    stopwords = STOPWORDS.update(stopwords)
+    if stopwords:
+        stopwords = STOPWORDS.update(stopwords)
 
-    wordcloud = WordCloud(
+    wc = WordCloud(
         stopwords=stopwords,
-        max_font_size=90,
-        width=800,
-        height=400,
-        background_color="white",
-        colormap="magma",
-        min_word_length=2,
-        max_words=400,
-        min_font_size=12,
+        **kwargs,
     )
-    wordcloud.generate(" ".join(words))
+    wc.generate(" ".join(words))
 
-    plt.figure(figsize=(8, 4))
-    plt.imshow(wordcloud, interpolation="bilinear")
+    if ax is None:
+        _, ax = plt.subplots()
+
+    ax.imshow(wc, interpolation="bilinear")
     plt.axis("off")
     plt.tight_layout()
-    plt.show()
+    return ax
 
 
 def calendar_heatmap(
@@ -115,7 +114,7 @@ def calendar_heatmap(
     year,
     vmin=None,
     vmax=None,
-    cmap="Reds",
+    cmap="Blues",
     fillcolor="whitesmoke",
     linewidth=1,
     linecolor=None,
@@ -125,7 +124,7 @@ def calendar_heatmap(
     monthticks=True,
     monthly_border=False,
     ax=None,
-    **kwargs
+    **kwargs,
 ):
     """
     Adapted from https://github.com/MarvinT/calmap.
@@ -172,7 +171,9 @@ def calendar_heatmap(
 
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="3%", pad=0.08)
-    plt.colorbar(pc, cax=cax, ticks=[min(vmin), (min(vmin) + max(vmax)) / 2, max(vmax)])
+    plt.colorbar(
+        pc, cax=cax, ticks=[min(vmin), int((min(vmin) + max(vmax)) / 2), max(vmax)]
+    )
 
     ax.set(xlim=(0, plot_data.shape[1]), ylim=(0, plot_data.shape[0]))
 
@@ -240,4 +241,5 @@ def calendar_heatmap(
     ax.set_yticklabels(
         [daylabels[i] for i in dayticks], rotation="horizontal", va="center"
     )
+    plt.tight_layout()
     return ax
