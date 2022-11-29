@@ -10,3 +10,5 @@ def test_whatsapp():
         assert row_res.equals(row_target), row_res.compare(
             row_target, result_names=("result", "target")
         )
+
+#add telegram parser
