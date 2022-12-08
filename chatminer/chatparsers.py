@@ -1,13 +1,14 @@
-import unicodedata
+import datetime
 import json
 import logging
 import re
-import datetime
+import unicodedata
 from abc import ABC, abstractmethod
 from pathlib import Path
-from dateutil import parser as datetimeparser
-from bs4 import BeautifulSoup
+
 import pandas as pd
+from bs4 import BeautifulSoup
+from dateutil import parser as datetimeparser
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -226,18 +227,37 @@ class FacebookMessengerParser(Parser):
 
 
 class TelegramJsonParser(Parser):
+    def __init__(self, filepath, chat_name="", saved_messages=False):
+        self.saved_messages = saved_messages
+        self.chat_name = chat_name
+        super().__init__(filepath)
+
     def _read_file_into_list(self):
         self._logger.info("Starting reading raw messages into memory...")
         with self._file.open(encoding="utf-8") as f:
             json_objects = json.load(f)
-
+        chat_found = False
         if "messages" in json_objects:
             self.messages = json_objects["messages"]
+            chat_found = True
         else:
-            self.messages = json_objects["chats"]["list"][1]["messages"]
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
+            for i, chat in enumerate(json_objects["chats"]["list"]):
+                if chat["type"] == "saved_messages":
+                    if self.saved_messages:
+                        self.messages = json_objects["chats"]["list"][i]["messages"]
+                        chat_found = True
+                        break
+                elif chat["name"] == self.chat_name:
+                    self.messages = json_objects["chats"]["list"][i]["messages"]
+                    chat_found = True
+                    break
+        if chat_found:
+            self._logger.info(
+                "Finished reading %i raw messages into memory.", len(self.messages)
+            )
+        else:
+            self._logger.error(f"Chat \"{self.chat_name}\" was not found within provided Telegram data.")
+            raise ValueError
 
     def _parse_message(self, mess):
         if "from" in mess and "text" in mess:
