@@ -256,7 +256,9 @@ class TelegramJsonParser(Parser):
                 "Finished reading %i raw messages into memory.", len(self.messages)
             )
         else:
-            self._logger.error(f"Chat \"{self.chat_name}\" was not found within provided Telegram data.")
+            self._logger.error(
+                f'Chat "{self.chat_name}" was not found within provided Telegram data.'
+            )
             raise ValueError
 
     def _parse_message(self, mess):
