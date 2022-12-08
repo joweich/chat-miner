@@ -231,7 +231,10 @@ class TelegramJsonParser(Parser):
         with self._file.open(encoding="utf-8") as f:
             json_objects = json.load(f)
 
-        self.messages = json_objects["messages"]
+        if "messages" in json_objects:
+            self.messages = json_objects["messages"]
+        else:
+            self.messages = json_objects["chats"]["list"][1]["messages"]
         self._logger.info(
             "Finished reading %i raw messages into memory.", len(self.messages)
         )
