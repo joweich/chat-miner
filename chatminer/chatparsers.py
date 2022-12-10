@@ -227,8 +227,7 @@ class FacebookMessengerParser(Parser):
 
 
 class TelegramJsonParser(Parser):
-    def __init__(self, filepath, chat_name="", saved_messages=False):
-        self.saved_messages = saved_messages
+    def __init__(self, filepath, chat_name=""):
         self.chat_name = chat_name
         super().__init__(filepath)
 
@@ -236,30 +235,27 @@ class TelegramJsonParser(Parser):
         self._logger.info("Starting reading raw messages into memory...")
         with self._file.open(encoding="utf-8") as f:
             json_objects = json.load(f)
-        chat_found = False
         if "messages" in json_objects:
             self.messages = json_objects["messages"]
-            chat_found = True
         else:
-            for i, chat in enumerate(json_objects["chats"]["list"]):
-                if chat["type"] == "saved_messages":
-                    if self.saved_messages:
-                        self.messages = json_objects["chats"]["list"][i]["messages"]
-                        chat_found = True
-                        break
-                elif chat["name"] == self.chat_name:
-                    self.messages = json_objects["chats"]["list"][i]["messages"]
-                    chat_found = True
+            if not self.chat_name:
+                self._logger.info(
+                    "No chat name was specified, parsing Saved Messages..."
+                )
+            for chat in json_objects["chats"]["list"]:
+                if ("name" in chat and chat["name"] == self.chat_name) or (
+                    not self.chat_name and chat["type"] == "saved_messages"
+                ):
+                    self.messages = chat["messages"]
                     break
-        if chat_found:
+        if self.messages:
             self._logger.info(
                 "Finished reading %i raw messages into memory.", len(self.messages)
             )
         else:
             self._logger.error(
-                f'Chat "{self.chat_name}" was not found within provided Telegram data.'
+                f'Chat "{self.chat_name if self.chat_name else "Saved Messages"}" was not found within provided Telegram data.'
             )
-            raise ValueError
 
     def _parse_message(self, mess):
         if "from" in mess and "text" in mess:
