@@ -227,7 +227,7 @@ class FacebookMessengerParser(Parser):
 
 
 class TelegramJsonParser(Parser):
-    def __init__(self, filepath, chat_name=""):
+    def __init__(self, filepath, chat_name=None):
         self.chat_name = chat_name
         super().__init__(filepath)
 
@@ -238,16 +238,20 @@ class TelegramJsonParser(Parser):
         if "messages" in json_objects:
             self.messages = json_objects["messages"]
         else:
-            if not self.chat_name:
+            if self.chat_name:
+                self._logger.info(f'Searching for chat "{self.chat_name}"...')
+                for chat in json_objects["chats"]["list"]:
+                    if "name" in chat and chat["name"] == self.chat_name:
+                        self.messages = chat["messages"]
+                        break
+            else:
                 self._logger.info(
-                    "No chat name was specified, parsing Saved Messages..."
+                    'No chat name was specified, searching for chat "Saved Messages"...'
                 )
-            for chat in json_objects["chats"]["list"]:
-                if ("name" in chat and chat["name"] == self.chat_name) or (
-                    not self.chat_name and chat["type"] == "saved_messages"
-                ):
-                    self.messages = chat["messages"]
-                    break
+                for chat in json_objects["chats"]["list"]:
+                    if chat["type"] == "saved_messages":
+                        self.messages = chat["messages"]
+                        break
         if self.messages:
             self._logger.info(
                 "Finished reading %i raw messages into memory.", len(self.messages)
