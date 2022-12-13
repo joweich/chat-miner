@@ -19,7 +19,7 @@ def sunburst(
     isolines=None,
     isolines_relative=True,
     ax=None,
-    authors=[]
+    authors=[],
 ):
     if authors:
         df = df[df["author"].isin(authors)]
