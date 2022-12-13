@@ -19,7 +19,11 @@ def sunburst(
     isolines=None,
     isolines_relative=True,
     ax=None,
+    authors=[],
 ):
+    if authors:
+        df = df[df["author"].isin(authors)]
+
     df_circle = df.groupby(by="hour")["message"].count().reset_index()
 
     hourly_count = np.zeros(24)
@@ -87,7 +91,10 @@ def sunburst(
     return ax
 
 
-def wordcloud(df, ax=None, stopwords=None, **kwargs):
+def wordcloud(df, ax=None, stopwords=None, authors=[], **kwargs):
+    if authors:
+        df = df[df["author"].isin(authors)]
+
     messages = [mess.split() for mess in df["message"].values]
     words = [word.lower() for sublist in messages for word in sublist]
 
@@ -124,12 +131,16 @@ def calendar_heatmap(
     monthticks=True,
     monthly_border=False,
     ax=None,
+    authors=[],
     **kwargs,
 ):
     """
     Adapted from https://github.com/MarvinT/calmap.
     Copyright (c) 2015 by Martijn Vermaat and contributors
     """
+
+    if authors:
+        df = df[df["author"].isin(authors)]
 
     df = df[df["datetime"].dt.year == year]
     df = df.groupby(by=df["datetime"].dt.date).count()["message"].reset_index()
