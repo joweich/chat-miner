@@ -24,3 +24,6 @@ Cras scelerisque neque.
 09/10/22, 10:37 p. m. - John Doe: Testing abnormal unicode
 09/10/22, 10:37 p. m. - John Doe 🤓: Testing emoji 🤓
 09/10/22, 10:37 p. m. - 🤓: Testing emoji 🤓
+2018/12/24, 13:01. - John Doe: Testing abnormal unicode with yyyy first
+2018/12/24, 13:01. - John Doe 🤓: Testing emoji 🤓 with yyyy first
+2018/12/24, 13:01. - 🤓: Testing emoji 🤓 with yyyy first
