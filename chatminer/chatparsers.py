@@ -61,8 +61,7 @@ class Parser(ABC):
     def _add_metadata(self):
         self.df["weekday"] = self.df["datetime"].dt.day_name()
         self.df["hour"] = self.df["datetime"].dt.hour
-        self.df["words"] = self.df["message"].apply(
-            lambda s: len(s.split(" ")))
+        self.df["words"] = self.df["message"].apply(lambda s: len(s.split(" ")))
         self.df["letters"] = self.df["message"].apply(len)
 
     @abstractmethod
@@ -157,7 +156,7 @@ class WhatsAppParser(Parser):
         max_second = 0
         for line in self.messages:
             line = (
-               line.replace(r"/", ".", 2)
+                line.replace(r"/", ".", 2)
                 .replace("-", ".", 2)
                 .replace(",", ".", 2)
                 .lstrip("[")
@@ -171,7 +170,7 @@ class WhatsAppParser(Parser):
                 day_and_month = [int(num) for num in line.split(".")[:2]]
                 max_first = max(max_first, day_and_month[0])
                 max_second = max(max_second, day_and_month[1])
-                
+
             if (max_first > 12) and (max_second > 12):
                 raise ValueError(f"Invalid date format: {line}")
 

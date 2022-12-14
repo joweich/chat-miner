@@ -1,3 +1,6 @@
+{"datetime":1671886860000,"author":"🤓","message":"Testing emoji 🤓 with yyyy first","weekday":"Saturday","hour":13,"words":6,"letters":31}
+{"datetime":1671886860000,"author":"John Doe 🤓","message":"Testing emoji 🤓 with yyyy first","weekday":"Saturday","hour":13,"words":6,"letters":31}
+{"datetime":1671886860000,"author":"John Doe","message":"Testing abnormal unicode with yyyy first","weekday":"Saturday","hour":13,"words":6,"letters":40}
 {"datetime":1662849420000,"author":"🤓","message":"Testing emoji 🤓","weekday":"Saturday","hour":22,"words":3,"letters":15}
 {"datetime":1662849420000,"author":"John Doe 🤓","message":"Testing emoji 🤓","weekday":"Saturday","hour":22,"words":3,"letters":15}
 {"datetime":1662849420000,"author":"John Doe","message":"Testing abnormal unicode","weekday":"Saturday","hour":22,"words":3,"letters":24}
