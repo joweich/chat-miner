@@ -222,12 +222,16 @@ class FacebookMessengerParser(Parser):
         )
 
     def _parse_message(self, mess):
-        if mess["type"] == "Share":
-            body = mess["share"]["link"]
-        elif "sticker" in mess:
-            body = mess["sticker"]["uri"]
+        if "type" in mess:
+            if mess["type"] == "Share":
+                body = mess["share"]["link"]
+            elif "sticker" in mess:
+                body = mess["sticker"]["uri"]
+            else:
+                body = mess["content"]
         else:
-            body = mess["content"]
+            self._logger.warning("Skipped message without type-field: %s", {mess})
+            return None
 
         parsed_message = {
             "datetime": datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000),
