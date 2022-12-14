@@ -161,15 +161,14 @@ class WhatsAppParser(Parser):
                 .replace(",", ".", 2)
                 .lstrip("[")
             )
-            yearcheck = line.split(".")[:1]
-            if len(str(yearcheck[0])) > 2:
-                day_and_month = [int(num) for num in line.split(".")[:3]]
-                max_first = max(max_first, day_and_month[1])
-                max_second = max(max_second, day_and_month[2])
+            check_year_first = int(line.split(".")[0]) >= 100
+            if check_year_first:
+                day_and_month = [int(num) for num in line.split(".")[1:3]]
             else:
                 day_and_month = [int(num) for num in line.split(".")[:2]]
-                max_first = max(max_first, day_and_month[0])
-                max_second = max(max_second, day_and_month[1])
+
+            max_first = max(max_first, day_and_month[0])
+            max_second = max(max_second, day_and_month[1])
 
             if (max_first > 12) and (max_second > 12):
                 raise ValueError(f"Invalid date format: {line}")
