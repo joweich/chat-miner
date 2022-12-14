@@ -120,7 +120,7 @@ class WhatsAppParser(Parser):
 
     def _read_file_into_list(self):
         def _is_new_message(line):
-            regex = r"(^[\u200e]?\[?((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2})))"
+            regex = r"(^[\u200e]?\[?((\d{1})|(\d{2})|(\d{4}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2})))"
             return re.match(regex, line)
 
         self._logger.info("Starting reading raw messages into memory...")
@@ -155,10 +155,21 @@ class WhatsAppParser(Parser):
         max_first = 0
         max_second = 0
         for line in self.messages:
-            line = line.replace(r"/", ".", 2).replace("-", ".", 2).lstrip("[")
-            day_and_month = [int(num) for num in line.split(".")[:2]]
+            line = (
+                line.replace(r"/", ".", 2)
+                .replace("-", ".", 2)
+                .replace(",", ".", 2)
+                .lstrip("[")
+            )
+            check_year_first = int(line.split(".")[0]) >= 100
+            if check_year_first:
+                day_and_month = [int(num) for num in line.split(".")[1:3]]
+            else:
+                day_and_month = [int(num) for num in line.split(".")[:2]]
+
             max_first = max(max_first, day_and_month[0])
             max_second = max(max_second, day_and_month[1])
+
             if (max_first > 12) and (max_second > 12):
                 raise ValueError(f"Invalid date format: {line}")
 
