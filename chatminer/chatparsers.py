@@ -230,7 +230,7 @@ class FacebookMessengerParser(Parser):
             else:
                 body = mess["content"]
         else:
-            self._logger.warning("Skipped message without type-field: %s", {mess})
+            self._logger.warning("Skipped message without type-field: %s", mess)
             return None
 
         parsed_message = {
