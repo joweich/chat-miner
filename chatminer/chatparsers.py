@@ -222,15 +222,14 @@ class FacebookMessengerParser(Parser):
         )
 
     def _parse_message(self, mess):
-        if "type" in mess:
-            if mess["type"] == "Share":
-                body = mess["share"]["link"]
-            elif "sticker" in mess:
-                body = mess["sticker"]["uri"]
-            else:
-                body = mess["content"]
+        if "type" in mess and mess["type"] == "Share":
+            body = mess["share"]["link"]
+        elif "sticker" in mess:
+            body = mess["sticker"]["uri"]
+        elif "content" in mess:
+            body = mess["content"]
         else:
-            self._logger.warning("Skipped message without type-field: %s", mess)
+            self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
         parsed_message = {
