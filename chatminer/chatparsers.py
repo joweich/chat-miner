@@ -222,12 +222,15 @@ class FacebookMessengerParser(Parser):
         )
 
     def _parse_message(self, mess):
-        if mess["type"] == "Share":
+        if "type" in mess and mess["type"] == "Share":
             body = mess["share"]["link"]
         elif "sticker" in mess:
             body = mess["sticker"]["uri"]
-        else:
+        elif "content" in mess:
             body = mess["content"]
+        else:
+            self._logger.warning("Skipped message with unknown format: %s", mess)
+            return None
 
         parsed_message = {
             "datetime": datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000),
