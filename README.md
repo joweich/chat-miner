@@ -3,6 +3,7 @@
 [![PyPI Version](https://img.shields.io/pypi/v/chat-miner.svg)](https://pypi.org/project/chat-miner/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Downloads](https://static.pepy.tech/badge/chat-miner)](https://pepy.tech/project/chat-miner)
 
 **chat-miner** provides lean parsers for every major platform transforming chats into pandas dataframes. Artistic visualizations allow you to explore your data differently and create artwork from your chats.
 
@@ -68,4 +69,14 @@ ax = vis.wordcloud(parser.df, ax=ax, stopwords=stopwords, **kwargs)
 ```
 <p align="center">
   <img src="examples/wordcloud.svg">
+</p>
+
+### 4.4 Radarchart: Message count per weekday
+```python
+fig, ax = plt.subplots(1, 2, figsize=(7, 3), subplot_kw={'projection': 'radar'})
+ax[0] = vis.radar(parser.df, ax=ax[0])
+ax[1] = vis.radar(parser.df, ax=ax[1], color='C1', alpha=0)
+```
+<p align="center">
+  <img src="examples/radar.svg">
 </p>
