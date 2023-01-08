@@ -1,0 +1,141 @@
+{
+  "participants": [
+    {
+      "name": "John Doe"
+    },
+    {
+      "name": "J\u00e2\u009d\u00a4\u00ef\u00b8\u008fhn Doe"
+    },
+    {
+      "name": "Jane Doe"
+    },
+    {
+      "name": "Lionel Messi"
+    }
+  ],
+  "messages": [
+    {
+      "sender_name": "John Doe",
+      "timestamp_ms": 1646025943621,
+      "reactions": [
+        {
+          "reaction": "\u00e2\u009d\u00a4\u00ef\u00b8\u008f",
+          "actor": "J\u00e2\u009d\u00a4\u00ef\u00b8\u008fhn Doe"
+        },
+        {
+          "reaction": "\u00f0\u009f\u0092\u0096",
+          "actor": "Jane Doe"
+        }
+      ]
+    },
+    {
+      "sender_name": "John Doe",
+      "timestamp_ms": 1635088903000,
+      "content": "John Doe's poll has multiple updates."
+    },
+    {
+      "sender_name": "Jane Doe",
+      "timestamp_ms": 1662849420000,
+      "content": "This poll is no longer available."
+    },
+    {
+      "sender_name": "John Doe",
+      "timestamp_ms": 1577230200000,
+      "audio_files": [
+        {
+          "uri": "messages/inbox/videocallwiththehomies_2765720812686121/audio/audioclip2765720812686121_27657208126861.mp4",
+          "creation_timestamp": 1577230200000
+        }
+      ]
+    },
+    {
+      "sender_name": "Jane Doe",
+      "timestamp_ms": 1569324600000,
+      "videos": [
+        {
+          "uri": "messages/inbox/testlog_834308961406351/videos/834308961_834308961406351_834308961406351_n_834308961406351.mp4",
+          "creation_timestamp": 1569324600000
+        }
+      ]
+    },
+    {
+      "sender_name": "Lionel Messi",
+      "timestamp_ms": 1569367800000,
+      "content": "John Doe sent an attachment.",
+      "share": {
+        "link": "https://www.instagram.com/p/CmUv48DLvxd/?feed_type=reshare_chaining",
+        "share_text": "CAMPEONES DEL MUNDO!!!!!!! \ud83c\udf0e\ud83c\udfc6\n\nTantas veces lo so\u00f1\u00e9, tanto lo deseaba que a\u00fan no caigo, no me lo puedo creer\u2026\u2026\n\nMuchas gracias a mi familia, a todos los que me apoyan y tambi\u00e9n a todos los que creyeron en nosotros. Demostramos una vez m\u00e1s que los argentinos cuando luchamos juntos y unidos somos capaces de conseguir lo que nos propongamos. El m\u00e9rito es de este grupo, que est\u00e1 por encima de las individualidades, es la fuerza de todos peleando por un mismo sue\u00f1o que tambi\u00e9n era el de todos los argentinos\u2026 Lo logramos!!!\n\nVAMOS ARGENTINA CARAJO!!!!! \ud83d\ude4c\ud83c\udffb\ud83d\ude4c\ud83c\udffb\n\nNos estamos viendo muy pronto\u2026 \ud83c\udde6\ud83c\uddf7\ud83c\udde6\ud83c\uddf7\ud83c\udde6\ud83c\uddf7"
+      }
+    },
+    {
+      "sender_name": "John Doe",
+      "timestamp_ms": 1500232380000,
+      "photos": [
+        {
+          "uri": "messages/inbox/testlog_5409190972533416/photos/5409190972533416_5409190972533416_5409190972533416_n_5409190972533416.jpg",
+          "creation_timestamp": 1500232380000
+        }
+      ]
+    },
+    {
+      "sender_name": "Jane Doe",
+      "timestamp_ms": 1419440880000,
+      "content": "Jane Doe joined the group.",
+      "users": [
+          {
+            "name": "Jane Doe"
+          }
+        ]
+    },
+    {
+      "sender_name": "John Doe",
+      "timestamp_ms": 1499369100000,
+      "content": "Testing message with reactions.",
+      "reactions": [
+          {
+            "reaction": "\u00e2\u009d\u00a4\u00ef\u00b8\u008f",
+            "actor": "J\u00e2\u009d\u00a4\u00ef\u00b8\u008fhn Doe"
+          },
+          {
+            "reaction": "\u00f0\u009f\u0092\u0096",
+            "actor": "Jane Doe"
+          }
+        ]
+    },
+    {
+      "sender_name": "\u00e2\u009d\u00a4\u00ef\u00b8\u008f",
+      "timestamp_ms": 1579359180000,
+      "content": "Testing username only emoji: \u00e2\u009d\u00a4\u00ef\u00b8\u008f"
+    },
+    {
+      "sender_name": "J\u00e2\u009d\u00a4\u00ef\u00b8\u008fhn Doe",
+      "timestamp_ms": 1579359180000,
+      "content": "Testing username with emoji: J\u00e2\u009d\u00a4\u00ef\u00b8\u008fhn Doe"
+    },
+    {
+      "sender_name": "John Doe",
+      "timestamp_ms": 1579294140000,
+      "content": "Testing message with emoji: \u00e2\u009d\u00a4\u00ef\u00b8\u008f"
+    },
+    {
+      "sender_name": "John Doe",
+      "timestamp_ms": 1577186580000,
+      "content": "Testing normal message."
+    }
+  ],
+  "title": "Test Log",
+  "is_still_participant": true,
+  "thread_type": "RegularGroup",
+  "thread_path": "inbox/testlog_2765720812686121",
+  "magic_words": [
+    
+  ],
+  "image": {
+    "uri": "messages/photos/968400688_050920249084043_0809974223100900748_n_1485937848424598.jpg",
+    "creation_timestamp": 1577186580000
+  },
+  "joinable_mode": {
+    "mode": 2,
+    "link": "https://ig.me/j/XNX75a8NCvbJSRg4/"
+  }
+}

@@ -255,13 +255,13 @@ class InstagramChatsParser(Parser):
 
     def _parse_message(self, mess):
         if "share" in mess:
-            body = "share"
+            body = "sentshare"
         elif "photos" in mess:
-            body = "photo"
+            body = "sentphoto"
         elif "videos" in mess:
-            body = "video"
+            body = "sentvideo"
         elif "audio_files" in mess:
-            body = "audio"
+            body = "sentaudio"
         elif "content" in mess:
             if any(
                 flag in mess["content"]
@@ -277,7 +277,10 @@ class InstagramChatsParser(Parser):
                 return None
             else:
                 body = mess["content"]
+        elif all(key in ("sender_name", "timestamp_ms", "reactions") for key in mess):
+            body = "disappearingmessage"
         else:
+            self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
         parsed_message = {
