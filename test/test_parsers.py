@@ -1,5 +1,5 @@
 import pandas as pd
-from chatminer.chatparsers import WhatsAppParser, InstagramChatsParser
+from chatminer.chatparsers import WhatsAppParser, InstagramJsonParser
 
 
 def test_whatsapp():
@@ -13,7 +13,7 @@ def test_whatsapp():
 
 
 def test_instagram():
-    parser = InstagramChatsParser("test/instagram/testlog.json")
+    parser = InstagramJsonParser("test/instagram/testlog.json")
     parser.parse_file_into_df()
     df_test = pd.read_json("test/instagram/target.json", orient="records", lines=True)
     for (_, row_res), (_, row_target) in zip(parser.df.iterrows(), df_test.iterrows()):

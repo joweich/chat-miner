@@ -240,7 +240,7 @@ class FacebookMessengerParser(Parser):
         return parsed_message
 
 
-class InstagramChatsParser(Parser):
+class InstagramJsonParser(Parser):
     def _read_file_into_list(self):
         self._logger.info("Starting reading raw messages into memory...")
         self.messages = []
