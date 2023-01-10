@@ -240,6 +240,57 @@ class FacebookMessengerParser(Parser):
         return parsed_message
 
 
+class InstagramJsonParser(Parser):
+    def _read_file_into_list(self):
+        self._logger.info("Starting reading raw messages into memory...")
+        self.messages = []
+        with self._file.open(encoding="utf-8") as f:
+            messages_raw = reversed((json.load(f)["messages"]))
+
+        for line in messages_raw:
+            self.messages.append(line)
+        self._logger.info(
+            "Finished reading %i raw messages into memory.", len(self.messages)
+        )
+
+    def _parse_message(self, mess):
+        if "share" in mess:
+            body = "sentshare"
+        elif "photos" in mess:
+            body = "sentphoto"
+        elif "videos" in mess:
+            body = "sentvideo"
+        elif "audio_files" in mess:
+            body = "sentaudio"
+        elif "content" in mess:
+            if any(
+                flag in mess["content"]
+                for flag in (
+                    " to your message",
+                    " in the poll.",
+                    " created a poll: ",
+                    " liked a message",
+                    "This poll is no longer available.",
+                    "'s poll has multiple updates.",
+                )
+            ):
+                return None
+            else:
+                body = mess["content"]
+        elif all(key in ("sender_name", "timestamp_ms", "reactions") for key in mess):
+            body = "disappearingmessage"
+        else:
+            self._logger.warning("Skipped message with unknown format: %s", mess)
+            return None
+
+        parsed_message = {
+            "datetime": datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000),
+            "author": mess["sender_name"].encode("latin-1").decode("utf-8"),
+            "message": body.encode("latin-1").decode("utf-8"),
+        }
+        return parsed_message
+
+
 class TelegramJsonParser(Parser):
     def __init__(self, filepath, chat_name=None):
         self.chat_name = chat_name

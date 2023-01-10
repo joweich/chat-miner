@@ -106,7 +106,8 @@ def wordcloud(df, ax=None, stopwords=None, authors=[], **kwargs):
     words = [word.lower() for sublist in messages for word in sublist]
 
     if stopwords:
-        stopwords = STOPWORDS.update(stopwords)
+        STOPWORDS.update(stopwords)
+    stopwords = STOPWORDS
 
     wc = WordCloud(
         stopwords=stopwords,

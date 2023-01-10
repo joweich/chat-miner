@@ -22,11 +22,11 @@ pip install -r requirements.txt
 ```
 
 ## 2. Exporting chat logs
-Have a look at the official tutorials for [WhatsApp](https://faq.whatsapp.com/196737011380816/?cms_id=196737011380816&published_only=true), [Signal](https://github.com/carderne/signal-export), [Telegram](https://telegram.org/blog/export-and-more), or [Facebook Messenger](https://www.facebook.com/help/messenger-app/713635396288741?cms_id=713635396288741&published_only=true) to learn how to export chat logs for your platform.
+Have a look at the official tutorials for [WhatsApp](https://faq.whatsapp.com/1180414079177245/), [Signal](https://github.com/carderne/signal-export), [Telegram](https://telegram.org/blog/export-and-more), [Facebook Messenger](https://www.facebook.com/help/messenger-app/713635396288741), or [Instagram Chats](https://help.instagram.com/181231772500920) to learn how to export chat logs for your platform.
 
 ## 3. Parsing
 Following code showcases the ``WhatsAppParser`` module.
-The usage of ``SignalParser``, ``TelegramJsonParser``, and ``FacebookMessengerParser`` follows the same pattern.
+The usage of ``SignalParser``, ``TelegramJsonParser``, ``FacebookMessengerParser``, and ``InstagramJsonParser`` follows the same pattern.
 ```python
 from chatminer.chatparsers import WhatsAppParser
 
