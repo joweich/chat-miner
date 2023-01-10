@@ -1,11 +1,11 @@
-{"datetime":1577157780000,"author":"John Doe","message":"Testing normal message.","weekday":"Tuesday","hour":3,"words":3,"letters":23}
-{"datetime":1579265340000,"author":"John Doe","message":"Testing message with emoji: ❤️","weekday":"Friday","hour":12,"words":5,"letters":30}
-{"datetime":1579330380000,"author":"J❤️hn Doe","message":"Testing username with emoji: J❤️hn Doe","weekday":"Saturday","hour":6,"words":6,"letters":38}
-{"datetime":1579330380000,"author":"❤️","message":"Testing username only emoji: ❤️","weekday":"Saturday","hour":6,"words":5,"letters":31}
-{"datetime":1499343900000,"author":"John Doe","message":"Testing message with reactions.","weekday":"Thursday","hour":12,"words":4,"letters":31}
-{"datetime":1419412080000,"author":"Jane Doe","message":"Jane Doe joined the group.","weekday":"Wednesday","hour":9,"words":5,"letters":26}
-{"datetime":1500207180000,"author":"John Doe","message":"sentphoto","weekday":"Sunday","hour":12,"words":1,"letters":9}
-{"datetime":1569342600000,"author":"Lionel Messi","message":"sentshare","weekday":"Tuesday","hour":16,"words":1,"letters":9}
-{"datetime":1569299400000,"author":"Jane Doe","message":"sentvideo","weekday":"Tuesday","hour":4,"words":1,"letters":9}
-{"datetime":1577201400000,"author":"John Doe","message":"sentaudio","weekday":"Tuesday","hour":15,"words":1,"letters":9}
-{"datetime":1645997143621,"author":"John Doe","message":"disappearingmessage","weekday":"Sunday","hour":21,"words":1,"letters":19}
+{"datetime":1577186580000,"author":"John Doe","message":"Testing normal message.","weekday":"Tuesday","hour":11,"words":3,"letters":23}
+{"datetime":1579294140000,"author":"John Doe","message":"Testing message with emoji: ❤️","weekday":"Friday","hour":20,"words":5,"letters":30}
+{"datetime":1579359180000,"author":"J❤️hn Doe","message":"Testing username with emoji: J❤️hn Doe","weekday":"Saturday","hour":14,"words":6,"letters":38}
+{"datetime":1579359180000,"author":"❤️","message":"Testing username only emoji: ❤️","weekday":"Saturday","hour":14,"words":5,"letters":31}
+{"datetime":1499369100000,"author":"John Doe","message":"Testing message with reactions.","weekday":"Thursday","hour":19,"words":4,"letters":31}
+{"datetime":1419440880000,"author":"Jane Doe","message":"Jane Doe joined the group.","weekday":"Wednesday","hour":17,"words":5,"letters":26}
+{"datetime":1500232380000,"author":"John Doe","message":"sentphoto","weekday":"Sunday","hour":19,"words":1,"letters":9}
+{"datetime":1569367800000,"author":"Lionel Messi","message":"sentshare","weekday":"Tuesday","hour":23,"words":1,"letters":9}
+{"datetime":1569324600000,"author":"Jane Doe","message":"sentvideo","weekday":"Tuesday","hour":11,"words":1,"letters":9}
+{"datetime":1577230200000,"author":"John Doe","message":"sentaudio","weekday":"Tuesday","hour":23,"words":1,"letters":9}
+{"datetime":1646025943621,"author":"John Doe","message":"disappearingmessage","weekday":"Monday","hour":5,"words":1,"letters":19}

@@ -284,7 +284,7 @@ class InstagramChatsParser(Parser):
             return None
 
         parsed_message = {
-            "datetime": datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000),
+            "datetime": datetime.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000),
             "author": mess["sender_name"].encode("latin-1").decode("utf-8"),
             "message": body.encode("latin-1").decode("utf-8"),
         }
