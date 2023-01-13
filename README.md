@@ -73,6 +73,8 @@ ax = vis.wordcloud(parser.df, ax=ax, stopwords=stopwords, **kwargs)
 
 ### 4.4 Radarchart: Message count per weekday
 ```python
+if not vis.is_radar_registered():
+	vis.radar_factory(7, frame="polygon")
 fig, ax = plt.subplots(1, 2, figsize=(7, 3), subplot_kw={'projection': 'radar'})
 ax[0] = vis.radar(parser.df, ax=ax[0])
 ax[1] = vis.radar(parser.df, ax=ax[1], color='C1', alpha=0)

@@ -375,3 +375,11 @@ def radar_factory(num_vars, frame="circle"):
 
     register_projection(RadarAxes)
     return theta
+
+
+def is_radar_registered():
+    try:
+        plt.subplots(subplot_kw={"projection": "radar"})
+    except ValueError:
+        return False
+    return True
