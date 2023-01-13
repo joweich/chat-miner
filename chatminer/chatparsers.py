@@ -120,7 +120,7 @@ class WhatsAppParser(Parser):
 
     def _read_file_into_list(self):
         def _is_new_message(line):
-            regex = r"(^[\u200e]?\[?((\d{1})|(\d{2})|(\d{4}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2})))"
+            regex = r"^[\u200e]?\[?((\d{1})|(\d{2})|(\d{4}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2}))((\,)|(\ ))"
             return re.match(regex, line)
 
         self._logger.info("Starting reading raw messages into memory...")
