@@ -3,7 +3,6 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pandas.api.types import CategoricalDtype
 from wordcloud import WordCloud, STOPWORDS
 from dateutil.relativedelta import relativedelta
 from matplotlib.patches import Polygon
@@ -26,7 +25,7 @@ def sunburst(
     isolines=None,
     isolines_relative=True,
     ax=None,
-    authors=[],
+    authors=None,
 ):
     if authors:
         df = df[df["author"].isin(authors)]
@@ -98,7 +97,7 @@ def sunburst(
     return ax
 
 
-def wordcloud(df, ax=None, stopwords=None, authors=[], **kwargs):
+def wordcloud(df, ax=None, stopwords=None, authors=None, **kwargs):
     if authors:
         df = df[df["author"].isin(authors)]
 
@@ -139,7 +138,7 @@ def calendar_heatmap(
     monthticks=True,
     monthly_border=False,
     ax=None,
-    authors=[],
+    authors=None,
     **kwargs,
 ):
     """
@@ -269,7 +268,7 @@ def radar(
     color="C0",
     alpha=0.3,
     ax=None,
-    authors=[],
+    authors=None,
 ):
     if authors:
         df = df[df["author"].isin(authors)]
