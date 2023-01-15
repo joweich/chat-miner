@@ -5,7 +5,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Downloads](https://static.pepy.tech/badge/chat-miner)](https://pepy.tech/project/chat-miner)
 
-**chat-miner** provides lean parsers for every major platform transforming chats into pandas dataframes. Artistic visualizations allow you to explore your data differently and create artwork from your chats.
+**chat-miner** provides lean parsers for every major platform transforming chats into pandas dataframes. Artistic visualizations allow you to explore your data and create artwork from your chats.
 
 
 ## 1. Installation
@@ -31,7 +31,8 @@ The usage of ``SignalParser``, ``TelegramJsonParser``, ``FacebookMessengerParser
 from chatminer.chatparsers import WhatsAppParser
 
 parser = WhatsAppParser(FILEPATH)
-parser.parse_file_into_df()
+parser.parse_file()
+parser.parsed_messages.get_df()
 ```
 ## 4. Visualizing
 ```python
@@ -41,8 +42,8 @@ import matplotlib.pyplot as plt
 ### 4.1 Heatmap: Message count per day
 ```python
 fig, ax = plt.subplots(2, 1, figsize=(9, 3))
-ax[0] = vis.calendar_heatmap(parser.df, year=2020, cmap='Oranges', ax=ax[0])
-ax[1] = vis.calendar_heatmap(parser.df, year=2021, linewidth=0, monthly_border=True, ax=ax[1])
+ax[0] = vis.calendar_heatmap(df, year=2020, cmap='Oranges', ax=ax[0])
+ax[1] = vis.calendar_heatmap(df, year=2021, linewidth=0, monthly_border=True, ax=ax[1])
 ```
 
 <p align="center">
@@ -52,8 +53,8 @@ ax[1] = vis.calendar_heatmap(parser.df, year=2021, linewidth=0, monthly_border=T
 ### 4.2 Sunburst: Message count per daytime
 ```python
 fig, ax = plt.subplots(1, 2, figsize=(7, 3), subplot_kw={'projection': 'polar'})
-ax[0] = vis.sunburst(parser.df, highlight_max=True, isolines=[2500, 5000], isolines_relative=False, ax=ax[0])
-ax[1] = vis.sunburst(parser.df, highlight_max=False, isolines=[0.5, 1], color='C1', ax=ax[1])
+ax[0] = vis.sunburst(df, highlight_max=True, isolines=[2500, 5000], isolines_relative=False, ax=ax[0])
+ax[1] = vis.sunburst(df, highlight_max=False, isolines=[0.5, 1], color='C1', ax=ax[1])
 ```
 
 <p align="center">
@@ -65,7 +66,7 @@ ax[1] = vis.sunburst(parser.df, highlight_max=False, isolines=[0.5, 1], color='C
 fig, ax = plt.subplots(figsize=(8, 3))
 stopwords = ['these', 'are', 'stopwords']
 kwargs={"background_color": "white", "width": 800, "height": 300, "max_words": 500}
-ax = vis.wordcloud(parser.df, ax=ax, stopwords=stopwords, **kwargs)
+ax = vis.wordcloud(df, ax=ax, stopwords=stopwords, **kwargs)
 ```
 <p align="center">
   <img src="examples/wordcloud.svg">
@@ -76,8 +77,8 @@ ax = vis.wordcloud(parser.df, ax=ax, stopwords=stopwords, **kwargs)
 if not vis.is_radar_registered():
 	vis.radar_factory(7, frame="polygon")
 fig, ax = plt.subplots(1, 2, figsize=(7, 3), subplot_kw={'projection': 'radar'})
-ax[0] = vis.radar(parser.df, ax=ax[0])
-ax[1] = vis.radar(parser.df, ax=ax[1], color='C1', alpha=0)
+ax[0] = vis.radar(df, ax=ax[0])
+ax[1] = vis.radar(df, ax=ax[1], color='C1', alpha=0)
 ```
 <p align="center">
   <img src="examples/radar.svg">
