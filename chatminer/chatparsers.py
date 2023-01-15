@@ -222,12 +222,24 @@ class FacebookMessengerParser(Parser):
         )
 
     def _parse_message(self, mess):
+        def correct_invalid_unicode(body):
+            # SEE: https://stackoverflow.com/questions/50826787/decode-or-unescape-u00f0-u009f-u0091-u008d-to
+            def decode_bytes(seq):
+                seq = seq.replace("\\u00", "")
+                seq = bytes.fromhex(seq).decode("utf-8")
+                return seq
+
+            regex = r"(\\u00([0-9a-f]{2})+){2,}"
+            body = re.sub(regex, lambda x: decode_bytes(x.group(0)), body)
+            return body
+
         if "type" in mess and mess["type"] == "Share":
             body = mess["share"]["link"]
         elif "sticker" in mess:
             body = mess["sticker"]["uri"]
         elif "content" in mess:
             body = mess["content"]
+            body = correct_invalid_unicode(body)
         else:
             self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
