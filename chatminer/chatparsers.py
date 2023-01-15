@@ -23,7 +23,7 @@ class Parser(ABC):
         self._file = Path(filepath)
         assert self._file.is_file()
 
-        self.messages = None
+        self._raw_messages = []
         self.df = None
 
         self._logger = logging.getLogger(__name__)
@@ -35,13 +35,16 @@ class Parser(ABC):
             """
         )
         self._logger.info("Initialized parser.")
-        self._read_file_into_list()
 
     def parse_file_into_df(self):
+        self._logger.info("Starting reading raw messages...")
+        self._read_raw_messages_from_file()
+        self._logger.info("Finished reading %i raw messages.", len(self._raw_messages))
+
         self._logger.info("Starting parsing raw messages into dataframe...")
         parsed_messages = []
         with logging_redirect_tqdm():
-            for mess in tqdm(self.messages):
+            for mess in tqdm(self._raw_messages):
                 parsed_mess = self._parse_message(mess)
                 if parsed_mess:
                     parsed_messages.append(parsed_mess)
@@ -64,7 +67,7 @@ class Parser(ABC):
         self.df["letters"] = self.df["message"].apply(len)
 
     @abstractmethod
-    def _read_file_into_list(self):
+    def _read_raw_messages_from_file(self):
         return
 
     @abstractmethod
@@ -73,34 +76,29 @@ class Parser(ABC):
 
 
 class SignalParser(Parser):
-    def _read_file_into_list(self):
+    def _read_raw_messages_from_file(self):
         def _is_new_message(line):
             regex = r"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]"
             return re.match(regex, line)
 
-        self._logger.info("Starting reading raw messages into memory...")
-        self.messages = []
-        buffer = []
         with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed(list(f))
+            lines = reversed(list(f))
 
-        for line in messages_raw:
-            line = line.strip()
+        buffer = []
+        for line in lines:
             if not line:
                 continue
+
             if _is_new_message(line):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
-                    self.messages.append(" ".join(buffer))
+                    self._raw_messages.append(" ".join(buffer))
                     buffer.clear()
                 else:
-                    self.messages.append(line)
+                    self._raw_messages.append(line)
             else:
                 buffer.append(line)
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
 
     def _parse_message(self, mess):
         datetime_raw, mess = mess.split("]", 1)
@@ -113,22 +111,16 @@ class SignalParser(Parser):
 
 
 class WhatsAppParser(Parser):
-    def __init__(self, filepath):
-        super().__init__(filepath)
-        self._infer_datetime_format()
-
-    def _read_file_into_list(self):
+    def _read_raw_messages_from_file(self):
         def _is_new_message(line):
             regex = r"^[\u200e]?\[?((\d{1})|(\d{2})|(\d{4}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2}))((\,)|(\ ))"
             return re.match(regex, line)
 
-        self._logger.info("Starting reading raw messages into memory...")
-        self.messages = []
-        buffer = []
         with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed(list(f))
+            lines = reversed(list(f))
 
-        for line in messages_raw:
+        buffer = []
+        for line in lines:
             if not line:
                 continue
 
@@ -139,21 +131,19 @@ class WhatsAppParser(Parser):
                     buffer.append(line)
                     buffer.reverse()
                     joined_buffer = " ".join(buffer)
-                    self.messages.append("".join(joined_buffer.splitlines()))
+                    self._raw_messages.append("".join(joined_buffer.splitlines()))
                     buffer.clear()
                 else:
-                    self.messages.append(line)
+                    self._raw_messages.append(line)
             else:
                 buffer.append(line)
 
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
+        self._infer_datetime_format()
 
     def _infer_datetime_format(self):
         max_first = 0
         max_second = 0
-        for line in self.messages:
+        for line in self._raw_messages:
             line = (
                 line.replace(r"/", ".", 2)
                 .replace("-", ".", 2)
@@ -180,8 +170,7 @@ class WhatsAppParser(Parser):
             self._datetime_format = "MDY"
         else:
             self._logger.warning(
-                "Can't infer format of date. \
-                No message with day > 12. Assuming day first."
+                "Can't infer date format. No message with day > 12. Assuming DMY."
             )
             self._datetime_format = "DMY"
 
@@ -208,18 +197,9 @@ class WhatsAppParser(Parser):
 
 
 class FacebookMessengerParser(Parser):
-    def _read_file_into_list(self):
-        self._logger.info("Starting reading raw messages into memory...")
-        self.messages = []
-
+    def _read_raw_messages_from_file(self):
         with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed((json.load(f)["messages"]))
-
-        for line in messages_raw:
-            self.messages.append(line)
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
+            self._raw_messages = json.load(f)["messages"]
 
     def _parse_message(self, mess):
         if "type" in mess and mess["type"] == "Share":
@@ -241,17 +221,9 @@ class FacebookMessengerParser(Parser):
 
 
 class InstagramJsonParser(Parser):
-    def _read_file_into_list(self):
-        self._logger.info("Starting reading raw messages into memory...")
-        self.messages = []
+    def _read_raw_messages_from_file(self):
         with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed((json.load(f)["messages"]))
-
-        for line in messages_raw:
-            self.messages.append(line)
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
+            self._raw_messages = json.load(f)["messages"]
 
     def _parse_message(self, mess):
         if "share" in mess:
@@ -296,18 +268,18 @@ class TelegramJsonParser(Parser):
         self.chat_name = chat_name
         super().__init__(filepath)
 
-    def _read_file_into_list(self):
-        self._logger.info("Starting reading raw messages into memory...")
+    def _read_raw_messages_from_file(self):
         with self._file.open(encoding="utf-8") as f:
             json_objects = json.load(f)
+
         if "messages" in json_objects:
-            self.messages = json_objects["messages"]
+            self._raw_messages = json_objects["messages"]
         else:
             if self.chat_name:
                 self._logger.info(f'Searching for chat "{self.chat_name}"...')
                 for chat in json_objects["chats"]["list"]:
                     if "name" in chat and chat["name"] == self.chat_name:
-                        self.messages = chat["messages"]
+                        self._raw_messages = chat["messages"]
                         break
             else:
                 self._logger.info(
@@ -315,15 +287,11 @@ class TelegramJsonParser(Parser):
                 )
                 for chat in json_objects["chats"]["list"]:
                     if chat["type"] == "saved_messages":
-                        self.messages = chat["messages"]
+                        self._raw_messages = chat["messages"]
                         break
-        if self.messages:
-            self._logger.info(
-                "Finished reading %i raw messages into memory.", len(self.messages)
-            )
-        else:
+        if not self._raw_messages:
             self._logger.error(
-                f'Chat "{self.chat_name if self.chat_name else "Saved Messages"}" was not found within provided Telegram data.'
+                f'Chat "{self.chat_name if self.chat_name else "Saved Messages"}" was not found.'
             )
 
     def _parse_message(self, mess):
