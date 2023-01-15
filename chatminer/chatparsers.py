@@ -212,9 +212,15 @@ class FacebookMessengerParser(Parser):
     def _read_file_into_list(self):
         self._logger.info("Starting reading raw messages into memory...")
         self.messages = []
-        with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed((json.load(f)["messages"]))
 
+        # see https://stackoverflow.com/questions/50008296/facebook-json-badly-encoded
+        fix_mojibake_escapes = partial(
+            re.compile(rb'\\u00([\da-f]{2})').sub,
+            lambda m: bytes.fromhex(m[1].decode()),
+        )
+        with self._file.open("rb") as f:
+            messages_raw = reversed((json.loads(fix_mojibake_escapes(f.read()))["messages"]))
+        
         for line in messages_raw:
             self.messages.append(line)
         self._logger.info(
