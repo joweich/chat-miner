@@ -4,9 +4,10 @@ from chatminer.chatparsers import WhatsAppParser, InstagramJsonParser
 
 def test_whatsapp():
     parser = WhatsAppParser("test/whatsapp/testlog.txt")
-    parser.parse_file_into_df()
+    parser.parse_file()
+    df_res = parser.parsed_messages.get_df()
     df_test = pd.read_json("test/whatsapp/target.json", orient="records", lines=True)
-    for (_, row_res), (_, row_target) in zip(parser.df.iterrows(), df_test.iterrows()):
+    for (_, row_res), (_, row_target) in zip(df_res.iterrows(), df_test.iterrows()):
         assert row_res.equals(row_target), row_res.compare(
             row_target, result_names=("result", "target")
         )
@@ -14,9 +15,10 @@ def test_whatsapp():
 
 def test_instagram():
     parser = InstagramJsonParser("test/instagram/testlog.json")
-    parser.parse_file_into_df()
+    parser.parse_file()
+    df_res = parser.parsed_messages.get_df()
     df_test = pd.read_json("test/instagram/target.json", orient="records", lines=True)
-    for (_, row_res), (_, row_target) in zip(parser.df.iterrows(), df_test.iterrows()):
+    for (_, row_res), (_, row_target) in zip(df_res.iterrows(), df_test.iterrows()):
         assert row_res.equals(row_target), row_res.compare(
             row_target, result_names=("result", "target")
         )
