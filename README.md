@@ -32,7 +32,7 @@ from chatminer.chatparsers import WhatsAppParser
 
 parser = WhatsAppParser(FILEPATH)
 parser.parse_file()
-parser.parsed_messages.get_df()
+df = parser.parsed_messages.get_df()
 ```
 ## 4. Visualizing
 ```python
