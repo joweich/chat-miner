@@ -212,6 +212,7 @@ class FacebookMessengerParser(Parser):
     def _read_file_into_list(self):
         self._logger.info("Starting reading raw messages into memory...")
         self.messages = []
+
         with self._file.open(encoding="utf-8") as f:
             messages_raw = reversed((json.load(f)["messages"]))
 
@@ -234,8 +235,8 @@ class FacebookMessengerParser(Parser):
 
         parsed_message = {
             "datetime": datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000),
-            "author": mess["sender_name"],
-            "message": body,
+            "author": mess["sender_name"].encode("latin-1").decode("utf-8"),
+            "message": body.encode("latin-1").decode("utf-8"),
         }
         return parsed_message
 
