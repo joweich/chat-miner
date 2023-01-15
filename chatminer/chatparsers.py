@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import pandas as pd
-from bs4 import BeautifulSoup
 from dateutil import parser as datetimeparser
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -353,30 +352,3 @@ class TelegramJsonParser(Parser):
             return parsed_message
 
         return False
-
-
-class TelegramHtmlParser(Parser):
-    def _read_file_into_list(self):
-        self._logger.info("Starting reading raw messages into memory...")
-        with self._file.open(encoding="utf-8") as f:
-            soup = BeautifulSoup(f, "html.parser")
-            self.messages = list(
-                soup.find_all("div", class_="message default clearfix")
-            )
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
-
-    def _parse_message(self, mess):
-        from_name = mess.find("div", class_="from_name")
-        message = from_name.find_next("div")
-        if "text" in message["class"]:
-            message = message.text
-        else:
-            message = "Media"
-        parsed_message = {
-            "author": from_name.text,
-            "datetime": datetimeparser.parse(mess.find("div", class_="date")["title"]),
-            "message": message,
-        }
-        return parsed_message
