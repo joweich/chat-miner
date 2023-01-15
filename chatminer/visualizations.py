@@ -149,6 +149,12 @@ def calendar_heatmap(
     if authors:
         df = df[df["author"].isin(authors)]
 
+    if not year in df["datetime"].dt.year.values:
+        available_years = df["datetime"].dt.year.unique()
+        raise ValueError(
+            f"No message in year {year}. Available years: {available_years}"
+        )
+
     df = df[df["datetime"].dt.year == year]
     df = df.groupby(by=df["datetime"].dt.date).count()["message"].reset_index()
 
