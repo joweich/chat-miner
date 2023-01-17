@@ -5,3 +5,4 @@ matplotlib
 wordcloud
 python-dateutil
 tqdm
+transformers
