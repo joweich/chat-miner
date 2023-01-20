@@ -1,0 +1,15 @@
+12/24/19, 11:23 - John Doe: Lorem ipsum dolor sit amet.
+12/24/19, 11:23 - John Doe: Lorem ipsum : dolor sit amet.
+12/26/19, 11:55 - John-John Doe: Lorem ipsum : dolor sit amet.
+1/17/20, 20:49 - Jahn Doe: Lorem ipsum dolor sit amet,
+consectetur adipiscing elit. Duis libero.
+1/18/20, 14:53 - Jahn Doe: Lorem ipsum dolor sit amet,
+consectetur adipiscing elit.
+Pellentesque non tincidunt erat.
+Nullam suscipit diam dolor, non pretium leo semper eu.
+Aliquam pellentesque facilisis nunc eu rhoncus.
+Cras scelerisque neque.
+7/6/17, 19:25 - Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Tap to learn more.
+12/24/14, 17:08 - +12 345 578 created group "Groupname"
+12/24/14, 17:08 - You were added
+7/16/17, 19:13 - +12 345 578: Lorem ipsum.
