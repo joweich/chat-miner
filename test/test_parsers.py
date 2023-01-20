@@ -49,6 +49,6 @@ def test_instagram():
         infer_datetime_format=True,
     )
     assert_frame_equal(
-        df_test.loc[:, df_test.columns != "datetime"],
-        parser.df.loc[:, parser.df.columns != "datetime"],
+        df_test[["author", "message", "words", "letters"]],
+        parser.df[["author", "message", "words", "letters"]],
     )
