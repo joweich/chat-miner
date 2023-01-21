@@ -1,0 +1,4 @@
+datetime,author,message,weekday,hour,words,letters
+2022-10-09 22:37:00,🤓,Testing emoji 🤓,Sunday,22,3,15
+2022-10-09 22:37:00,John Doe 🤓,Testing emoji 🤓,Sunday,22,3,15
+2022-10-09 22:37:00,John Doe,Testing abnormal unicode,Sunday,22,3,24

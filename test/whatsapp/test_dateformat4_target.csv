@@ -1,0 +1,5 @@
+datetime,author,message,weekday,hour,words,letters
+2022-10-12 14:37:00,Jahn Doe,"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero.",Wednesday,14,10,69
+2022-10-11 13:37:00,John-John Doe,Lorem ipsum : dolor sit amet.,Tuesday,13,6,29
+2022-10-10 12:37:00,John Doe,Lorem ipsum dolor sit amet.,Monday,12,5,27
+2022-10-09 23:37:00,John Doe,Lorem ipsum dolor sit amet.,Sunday,23,5,27
