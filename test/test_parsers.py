@@ -6,13 +6,14 @@ from chatminer.chatparsers import WhatsAppParser, InstagramJsonParser
 def test_whatsapp():
     def assert_equal_from_file(file):
         parser = WhatsAppParser(f"test/whatsapp/test_{file}.txt")
-        parser.parse_file_into_df()
+        parser.parse_file()
+        df_res = parser.parsed_messages.get_df()
         df_test = pd.read_csv(
             f"test/whatsapp/test_{file}_target.csv",
             parse_dates=["datetime"],
             infer_datetime_format=True,
         )
-        assert_frame_equal(df_test, parser.df)
+        assert_frame_equal(df_test, df_res)
 
     def test_dateformat1():
         assert_equal_from_file("dateformat1")
@@ -42,7 +43,8 @@ def test_whatsapp():
 
 def test_instagram():
     parser = InstagramJsonParser("test/instagram/testlog.json")
-    parser.parse_file_into_df()
+    parser.parse_file()
+    df_res = parser.parsed_messages.get_df()
     df_test = pd.read_csv(
         "test/instagram/testlog_target.csv",
         parse_dates=["datetime"],
@@ -50,5 +52,5 @@ def test_instagram():
     )
     assert_frame_equal(
         df_test[["author", "message", "words", "letters"]],
-        parser.df[["author", "message", "words", "letters"]],
+        df_res[["author", "message", "words", "letters"]],
     )
