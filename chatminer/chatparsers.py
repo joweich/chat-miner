@@ -129,7 +129,7 @@ class SignalParser(Parser):
 class WhatsAppParser(Parser):
     def __init__(self, filepath):
         super().__init__(filepath)
-        self._datetime_format = None
+        self._datefmt = WhatsAppDateFormat(self._logger)
 
     def _read_raw_messages_from_file(self):
         def _is_new_message(line):
@@ -158,59 +158,19 @@ class WhatsAppParser(Parser):
             else:
                 buffer.append(line)
 
-        self._infer_datetime_format()
-
-    def _infer_datetime_format(self):
-        max_first = 0
-        max_second = 0
-        for line in self._raw_messages:
-            line = (
-                line.replace(r"/", ".", 2)
-                .replace("-", ".", 2)
-                .replace(",", ".", 2)
-                .lstrip("[")
-            )
-            check_year_first = int(line.split(".")[0]) >= 100
-            if check_year_first:
-                day_and_month = [int(num) for num in line.split(".")[1:3]]
-            else:
-                day_and_month = [int(num) for num in line.split(".")[:2]]
-
-            max_first = max(max_first, day_and_month[0])
-            max_second = max(max_second, day_and_month[1])
-
-            if (max_first > 12) and (max_second > 12):
-                raise ValueError(f"Invalid date format: {line}")
-
-        if max_first > 12 and max_second <= 12:
-            self._logger.info("Inferred DMY format for date.")
-            self._datetime_format = "DMY"
-        elif max_first <= 12 and max_second > 12:
-            self._logger.info("Inferred MDY format for date.")
-            self._datetime_format = "MDY"
-        else:
-            self._logger.warning(
-                "Can't infer date format. No message with day > 12. Assuming DMY."
-            )
-            self._datetime_format = "DMY"
+        self._datefmt.infer_format(self._raw_messages)
 
     def _parse_message(self, mess):
-        timestamp_author_sep = " - " if mess[0].isnumeric() else "] "
-        if timestamp_author_sep not in mess:
-            self._logger.warning(
-                "Failed to parse message. Message [%s] will be skipped.", mess
-            )
-            return None
-
-        datestring, author_and_body = mess.split(timestamp_author_sep, 1)
-        dayfirst = self._datetime_format == "DMY"
-        time = datetimeparser.parse(datestring, dayfirst=dayfirst, fuzzy=True)
+        datestr, author_and_body = mess.split(self._datefmt.date_author_sep, 1)
+        time = datetimeparser.parse(
+            datestr, dayfirst=self._datefmt.is_dayfirst, fuzzy=True
+        )
 
         if ":" in author_and_body:
-            author, body = author_and_body.split(": ", 1)
+            author, body = [x.strip() for x in author_and_body.split(": ", 1)]
         else:
             author = "System"
-            body = author_and_body
+            body = author_and_body.strip()
         return ParsedMessage(time, author, body)
 
 
@@ -332,3 +292,94 @@ class TelegramJsonParser(Parser):
             author = mess["from"]
             return ParsedMessage(time, author, body)
         return False
+
+
+class WhatsAppDateFormat:
+    def __init__(self, logger):
+        self.is_dayfirst = None
+        self.is_yearfirst = None
+        self.has_brackets = None
+        self.date_sep = None
+        self.date_author_sep = None
+        self._logger = logger
+
+    def infer_format(self, raw_messages):
+        self.has_brackets = self._infer_brackets(raw_messages[0])
+        self.date_author_sep = self._infer_date_author_sep()
+        self.date_sep = self._infer_date_sep(raw_messages[0])
+        self.is_yearfirst = self._infer_yearfirst(raw_messages[0])
+        self.is_dayfirst = self._infer_dayfirst(raw_messages)
+        self._log_resulting_format()
+
+    def _infer_brackets(self, mess):
+        return mess[0] == "["
+
+    def _infer_date_author_sep(self):
+        return "]" if self.has_brackets else " - "
+
+    def _infer_date_sep(self, mess):
+        datestr = mess.split(self.date_author_sep, 1)[0]
+        if self.has_brackets:
+            datestr = datestr.lstrip("[").rstrip("]")
+        for c in datestr:
+            if not c.isdigit():
+                return c
+        raise ValueError("No non-numeric character in datestring.")
+
+    def _infer_yearfirst(self, mess):
+        datestr = mess.split(self.date_author_sep, 1)[0]
+        if self.has_brackets:
+            datestr = datestr.lstrip("[").rstrip("]")
+        return int(datestr.split(self.date_sep)[0]) >= 100
+
+    def _infer_dayfirst(self, raw_messages):
+        max_first = 0
+        max_second = 0
+        for mess in raw_messages:
+            datestr = mess.split(self.date_author_sep, 1)[0]
+
+            if self.has_brackets:
+                datestr = datestr.lstrip("[").rstrip("]")
+
+            if self.is_yearfirst:
+                datepart = datestr.split(",")[0]
+                day_and_month = [int(num) for num in datepart.split(self.date_sep)[1:3]]
+            else:
+                day_and_month = [int(num) for num in datestr.split(self.date_sep)[:2]]
+
+            max_first = max(max_first, day_and_month[0])
+            max_second = max(max_second, day_and_month[1])
+
+            if max_first > 12 or max_second > 12:
+                break
+
+        if max_first > 12 >= max_second:
+            return True
+        if max_first <= 12 < max_second:
+            return False
+        self._logger.warning(
+            "Can't infer date format: No day > 12. Falling back on day first."
+        )
+        return True
+
+    def _log_resulting_format(self):
+        start = "[" if self.has_brackets else ""
+        end = "]" if self.has_brackets else ""
+        if self.is_yearfirst:
+            date1 = "year"
+            if self.is_dayfirst:
+                date2 = "day"
+                date3 = "month"
+            else:
+                date2 = "month"
+                date3 = "day"
+        elif self.is_dayfirst:
+            date1 = "day"
+            date2 = "month"
+            date3 = "year"
+        else:
+            date1 = "month"
+            date2 = "day"
+            date3 = "year"
+        composition = f"{start}{date1}{self.date_sep}{date2}{self.date_sep}{date3}{end}"
+        self._logger.info("Inferred date format: %s", composition)
