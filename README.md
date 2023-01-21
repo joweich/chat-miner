@@ -3,7 +3,7 @@
 [![PyPI Version](https://img.shields.io/pypi/v/chat-miner.svg)](https://pypi.org/project/chat-miner/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Downloads](https://static.pepy.tech/badge/chat-miner)](https://pepy.tech/project/chat-miner)
+[![Downloads](https://static.pepy.tech/badge/chat-miner/month)](https://pepy.tech/project/chat-miner)
 
 **chat-miner** provides lean parsers for every major platform transforming chats into pandas dataframes. Artistic visualizations allow you to explore your data and create artwork from your chats.
 
