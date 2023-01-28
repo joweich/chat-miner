@@ -1,0 +1,10 @@
+datetime,author,message,weekday,hour,words,letters
+2017-07-16 19:13:00,+12 345 578,Lorem ipsum.,Sunday,19,2,12
+2014-12-24 17:08:00,System,You were added,Wednesday,17,3,14
+2014-12-24 17:08:00,System,"+12 345 578 created group ""Groupname""",Wednesday,17,6,37
+2017-07-06 19:25:00,System,"Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Tap to learn more.",Thursday,19,25,139
+2020-01-18 14:53:00,Jahn Doe,"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non tincidunt erat. Nullam suscipit diam dolor, non pretium leo semper eu. Aliquam pellentesque facilisis nunc eu rhoncus. Cras scelerisque neque.",Saturday,14,30,216
+2020-01-17 20:49:00,Jahn Doe,"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero.",Friday,20,10,69
+2019-12-26 11:55:00,John-John Doe,Lorem ipsum : dolor sit amet.,Thursday,11,6,29
+2019-12-24 11:23:00,John Doe,Lorem ipsum : dolor sit amet.,Tuesday,11,6,29
+2019-12-24 11:23:00,John Doe,Lorem ipsum dolor sit amet.,Tuesday,11,5,27

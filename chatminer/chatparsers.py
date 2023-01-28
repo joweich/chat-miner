@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import pandas as pd
-from bs4 import BeautifulSoup
 from dateutil import parser as datetimeparser
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -19,13 +18,44 @@ logging.basicConfig(
 )
 
 
+class ParsedMessage:
+    def __init__(self, time, author, body):
+        self.time = time
+        self.author = author
+        self.body = body
+
+    def get_dict(self):
+        return {"datetime": self.time, "author": self.author, "message": self.body}
+
+
+class ParsedMessageCollection:
+    def __init__(self):
+        self._parsed_messages = []
+
+    def append(self, mess):
+        assert isinstance(mess, ParsedMessage)
+        self._parsed_messages.append(mess)
+
+    def get_df(self):
+        messages_as_dict = []
+        for mess in self._parsed_messages:
+            messages_as_dict.append(mess.get_dict())
+
+        df = pd.DataFrame(messages_as_dict)
+        df["weekday"] = df["datetime"].dt.day_name()
+        df["hour"] = df["datetime"].dt.hour
+        df["words"] = df["message"].apply(lambda s: len(s.split(" ")))
+        df["letters"] = df["message"].apply(len)
+        return df
+
+
 class Parser(ABC):
     def __init__(self, filepath):
         self._file = Path(filepath)
         assert self._file.is_file()
 
-        self.messages = None
-        self.df = None
+        self._raw_messages = []
+        self.parsed_messages = ParsedMessageCollection()
 
         self._logger = logging.getLogger(__name__)
         self._logger.info(
@@ -36,37 +66,26 @@ class Parser(ABC):
             """
         )
         self._logger.info("Initialized parser.")
-        self._read_file_into_list()
 
-    def parse_file_into_df(self):
-        self._logger.info("Starting parsing raw messages into dataframe...")
-        parsed_messages = []
-        with logging_redirect_tqdm():
-            for mess in tqdm(self.messages):
-                parsed_mess = self._parse_message(mess)
-                if parsed_mess:
-                    parsed_messages.append(parsed_mess)
+    def parse_file(self):
+        self._logger.info("Starting reading raw messages...")
+        self._read_raw_messages_from_file()
+        self._logger.info("Finished reading %i raw messages.", len(self._raw_messages))
 
-        self.df = pd.DataFrame(parsed_messages)
-        self._add_metadata()
-        self._logger.info("Finished parsing raw messages into dataframe.")
-
-    def write_df_to_csv(self, filename):
-        if self.df is not None:
-            self.df.to_csv(filename, index=False)
-            self._logger.info("Finished writing dataframe to csv.")
-        else:
-            self._logger.error("Failed writing to csv. Parse file first.")
-
-    def _add_metadata(self):
-        self.df["weekday"] = self.df["datetime"].dt.day_name()
-        self.df["hour"] = self.df["datetime"].dt.hour
-        self.df["words"] = self.df["message"].apply(lambda s: len(s.split(" ")))
-        self.df["letters"] = self.df["message"].apply(len)
+        self._logger.info("Starting parsing raw messages...")
+        self._parse_raw_messages()
+        self._logger.info("Finished parsing raw messages.")
 
     @abstractmethod
-    def _read_file_into_list(self):
+    def _read_raw_messages_from_file(self):
         return
+
+    def _parse_raw_messages(self):
+        with logging_redirect_tqdm():
+            for raw_mess in tqdm(self._raw_messages):
+                parsed_mess = self._parse_message(raw_mess)
+                if parsed_mess:
+                    self.parsed_messages.append(parsed_mess)
 
     @abstractmethod
     def _parse_message(self, mess):
@@ -74,62 +93,54 @@ class Parser(ABC):
 
 
 class SignalParser(Parser):
-    def _read_file_into_list(self):
+    def _read_raw_messages_from_file(self):
         def _is_new_message(line):
             regex = r"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]"
             return re.match(regex, line)
 
-        self._logger.info("Starting reading raw messages into memory...")
-        self.messages = []
-        buffer = []
         with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed(list(f))
+            lines = reversed(list(f))
 
-        for line in messages_raw:
-            line = line.strip()
+        buffer = []
+        for line in lines:
             if not line:
                 continue
+
             if _is_new_message(line):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
-                    self.messages.append(" ".join(buffer))
+                    self._raw_messages.append(" ".join(buffer))
                     buffer.clear()
                 else:
-                    self.messages.append(line)
+                    self._raw_messages.append(line)
             else:
                 buffer.append(line)
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
 
     def _parse_message(self, mess):
         datetime_raw, mess = mess.split("]", 1)
         time = datetimeparser.parse(datetime_raw[1:])
-        author, mess = mess.split(":", 1)
+        author, body = mess.split(":", 1)
         author = author.strip()
-        mess = mess.strip()
-        parsed_message = {"datetime": time, "author": author, "message": mess}
-        return parsed_message
+        body = body.strip()
+        return ParsedMessage(time, author, body)
 
 
 class WhatsAppParser(Parser):
     def __init__(self, filepath):
         super().__init__(filepath)
-        self._infer_datetime_format()
+        self._datefmt = WhatsAppDateFormat(self._logger)
 
-    def _read_file_into_list(self):
+    def _read_raw_messages_from_file(self):
         def _is_new_message(line):
             regex = r"^[\u200e]?\[?((\d{1})|(\d{2})|(\d{4}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2}))((\,)|(\ ))"
             return re.match(regex, line)
 
-        self._logger.info("Starting reading raw messages into memory...")
-        self.messages = []
-        buffer = []
         with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed(list(f))
+            lines = reversed(list(f))
 
-        for line in messages_raw:
+        buffer = []
+        for line in lines:
             if not line:
                 continue
 
@@ -140,87 +151,33 @@ class WhatsAppParser(Parser):
                     buffer.append(line)
                     buffer.reverse()
                     joined_buffer = " ".join(buffer)
-                    self.messages.append("".join(joined_buffer.splitlines()))
+                    self._raw_messages.append("".join(joined_buffer.splitlines()))
                     buffer.clear()
                 else:
-                    self.messages.append(line)
+                    self._raw_messages.append(line)
             else:
                 buffer.append(line)
 
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
-
-    def _infer_datetime_format(self):
-        max_first = 0
-        max_second = 0
-        for line in self.messages:
-            line = (
-                line.replace(r"/", ".", 2)
-                .replace("-", ".", 2)
-                .replace(",", ".", 2)
-                .lstrip("[")
-            )
-            check_year_first = int(line.split(".")[0]) >= 100
-            if check_year_first:
-                day_and_month = [int(num) for num in line.split(".")[1:3]]
-            else:
-                day_and_month = [int(num) for num in line.split(".")[:2]]
-
-            max_first = max(max_first, day_and_month[0])
-            max_second = max(max_second, day_and_month[1])
-
-            if (max_first > 12) and (max_second > 12):
-                raise ValueError(f"Invalid date format: {line}")
-
-        if max_first > 12 and max_second <= 12:
-            self._logger.info("Inferred DMY format for date.")
-            self._datetime_format = "DMY"
-        elif max_first <= 12 and max_second > 12:
-            self._logger.info("Inferred MDY format for date.")
-            self._datetime_format = "MDY"
-        else:
-            self._logger.warning(
-                "Can't infer format of date. \
-                No message with day > 12. Assuming day first."
-            )
-            self._datetime_format = "DMY"
+        self._datefmt.infer_format(self._raw_messages)
 
     def _parse_message(self, mess):
-        timestamp_author_sep = " - " if mess[0].isnumeric() else "] "
-        if timestamp_author_sep not in mess:
-            self._logger.warning(
-                "Failed to parse message. Message [%s] will be skipped.", mess
-            )
-            return None
-
-        datestring, author_and_body = mess.split(timestamp_author_sep, 1)
-        dayfirst = self._datetime_format == "DMY"
-        time = datetimeparser.parse(datestring, dayfirst=dayfirst, fuzzy=True)
+        datestr, author_and_body = mess.split(self._datefmt.date_author_sep, 1)
+        time = datetimeparser.parse(
+            datestr, dayfirst=self._datefmt.is_dayfirst, fuzzy=True
+        )
 
         if ":" in author_and_body:
-            author, body = author_and_body.split(": ", 1)
+            author, body = [x.strip() for x in author_and_body.split(": ", 1)]
         else:
             author = "System"
-            body = author_and_body
-
-        parsed_message = {"datetime": time, "author": author, "message": body}
-        return parsed_message
+            body = author_and_body.strip()
+        return ParsedMessage(time, author, body)
 
 
 class FacebookMessengerParser(Parser):
-    def _read_file_into_list(self):
-        self._logger.info("Starting reading raw messages into memory...")
-        self.messages = []
-
+    def _read_raw_messages_from_file(self):
         with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed((json.load(f)["messages"]))
-
-        for line in messages_raw:
-            self.messages.append(line)
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
+            self._raw_messages = json.load(f)["messages"]
 
     def _parse_message(self, mess):
         if "type" in mess and mess["type"] == "Share":
@@ -233,26 +190,16 @@ class FacebookMessengerParser(Parser):
             self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
-        parsed_message = {
-            "datetime": datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000),
-            "author": mess["sender_name"].encode("latin-1").decode("utf-8"),
-            "message": body.encode("latin-1").decode("utf-8"),
-        }
-        return parsed_message
+        time = datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
+        author = mess["sender_name"].encode("latin-1").decode("utf-8")
+        body = body.encode("latin-1").decode("utf-8")
+        return ParsedMessage(time, author, body)
 
 
 class InstagramJsonParser(Parser):
-    def _read_file_into_list(self):
-        self._logger.info("Starting reading raw messages into memory...")
-        self.messages = []
+    def _read_raw_messages_from_file(self):
         with self._file.open(encoding="utf-8") as f:
-            messages_raw = reversed((json.load(f)["messages"]))
-
-        for line in messages_raw:
-            self.messages.append(line)
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
+            self._raw_messages = json.load(f)["messages"]
 
     def _parse_message(self, mess):
         if "share" in mess:
@@ -276,39 +223,36 @@ class InstagramJsonParser(Parser):
                 )
             ):
                 return None
-            else:
-                body = mess["content"]
+            body = mess["content"]
         elif all(key in ("sender_name", "timestamp_ms", "reactions") for key in mess):
             body = "disappearingmessage"
         else:
             self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
-        parsed_message = {
-            "datetime": datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000),
-            "author": mess["sender_name"].encode("latin-1").decode("utf-8"),
-            "message": body.encode("latin-1").decode("utf-8"),
-        }
-        return parsed_message
+        time = datetime.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
+        author = mess["sender_name"].encode("latin-1").decode("utf-8")
+        body = body.encode("latin-1").decode("utf-8")
+        return ParsedMessage(time, author, body)
 
 
 class TelegramJsonParser(Parser):
     def __init__(self, filepath, chat_name=None):
-        self.chat_name = chat_name
         super().__init__(filepath)
+        self.chat_name = chat_name
 
-    def _read_file_into_list(self):
-        self._logger.info("Starting reading raw messages into memory...")
+    def _read_raw_messages_from_file(self):
         with self._file.open(encoding="utf-8") as f:
             json_objects = json.load(f)
+
         if "messages" in json_objects:
-            self.messages = json_objects["messages"]
+            self._raw_messages = json_objects["messages"]
         else:
             if self.chat_name:
-                self._logger.info(f'Searching for chat "{self.chat_name}"...')
+                self._logger.info("Searching for chat %s...", self.chat_name)
                 for chat in json_objects["chats"]["list"]:
                     if "name" in chat and chat["name"] == self.chat_name:
-                        self.messages = chat["messages"]
+                        self._raw_messages = chat["messages"]
                         break
             else:
                 self._logger.info(
@@ -316,67 +260,126 @@ class TelegramJsonParser(Parser):
                 )
                 for chat in json_objects["chats"]["list"]:
                     if chat["type"] == "saved_messages":
-                        self.messages = chat["messages"]
+                        self._raw_messages = chat["messages"]
                         break
-        if self.messages:
-            self._logger.info(
-                "Finished reading %i raw messages into memory.", len(self.messages)
-            )
-        else:
+        if not self._raw_messages:
             self._logger.error(
-                f'Chat "{self.chat_name if self.chat_name else "Saved Messages"}" was not found within provided Telegram data.'
+                "Chat %s was not found.",
+                self.chat_name if self.chat_name else "Saved Messages",
             )
 
     def _parse_message(self, mess):
         if "from" in mess and "text" in mess:
-            text = ""
-            if type(mess["text"]) is str:
-                text = mess["text"]
-            elif type(mess["text"]) is list:
+            if isinstance(mess["text"], str):
+                body = mess["text"]
+            elif isinstance(mess["text"], list):
                 assert all(
                     [
-                        (type(m) is dict and "text" in m) or type(m) is str
+                        (isinstance(m, dict) and "text" in m) or isinstance(m, str)
                         for m in mess["text"]
                     ]
                 )
-                text = " ".join(
-                    map(lambda m: m["text"] if type(m) is dict else m, mess["text"])
+                body = " ".join(
+                    map(
+                        lambda m: m["text"] if isinstance(m) is dict else m,
+                        mess["text"],
+                    )
                 )
             else:
                 raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
 
-            parsed_message = {
-                "author": mess["from"],
-                "datetime": datetime.datetime.fromtimestamp(int(mess["date_unixtime"])),
-                "message": text,
-            }
-            return parsed_message
-
+            time = datetime.datetime.fromtimestamp(int(mess["date_unixtime"]))
+            author = mess["from"]
+            return ParsedMessage(time, author, body)
         return False
 
 
-class TelegramHtmlParser(Parser):
-    def _read_file_into_list(self):
-        self._logger.info("Starting reading raw messages into memory...")
-        with self._file.open(encoding="utf-8") as f:
-            soup = BeautifulSoup(f, "html.parser")
-            self.messages = list(
-                soup.find_all("div", class_="message default clearfix")
-            )
-        self._logger.info(
-            "Finished reading %i raw messages into memory.", len(self.messages)
-        )
+class WhatsAppDateFormat:
+    def __init__(self, logger):
+        self.is_dayfirst = None
+        self.is_yearfirst = None
+        self.has_brackets = None
+        self.date_sep = None
+        self.date_author_sep = None
+        self._logger = logger
 
-    def _parse_message(self, mess):
-        from_name = mess.find("div", class_="from_name")
-        message = from_name.find_next("div")
-        if "text" in message["class"]:
-            message = message.text
+    def infer_format(self, raw_messages):
+        self.has_brackets = self._infer_brackets(raw_messages[0])
+        self.date_author_sep = self._infer_date_author_sep()
+        self.date_sep = self._infer_date_sep(raw_messages[0])
+        self.is_yearfirst = self._infer_yearfirst(raw_messages[0])
+        self.is_dayfirst = self._infer_dayfirst(raw_messages)
+        self._log_resulting_format()
+
+    def _infer_brackets(self, mess):
+        return mess[0] == "["
+
+    def _infer_date_author_sep(self):
+        return "]" if self.has_brackets else " - "
+
+    def _infer_date_sep(self, mess):
+        datestr = mess.split(self.date_author_sep, 1)[0]
+        if self.has_brackets:
+            datestr = datestr.lstrip("[").rstrip("]")
+        for c in datestr:
+            if not c.isdigit():
+                return c
+        raise ValueError("No non-numeric character in datestring.")
+
+    def _infer_yearfirst(self, mess):
+        datestr = mess.split(self.date_author_sep, 1)[0]
+        if self.has_brackets:
+            datestr = datestr.lstrip("[").rstrip("]")
+        return int(datestr.split(self.date_sep)[0]) >= 100
+
+    def _infer_dayfirst(self, raw_messages):
+        max_first = 0
+        max_second = 0
+        for mess in raw_messages:
+            datestr = mess.split(self.date_author_sep, 1)[0]
+
+            if self.has_brackets:
+                datestr = datestr.lstrip("[").rstrip("]")
+
+            if self.is_yearfirst:
+                datepart = datestr.split(",")[0]
+                day_and_month = [int(num) for num in datepart.split(self.date_sep)[1:3]]
+            else:
+                day_and_month = [int(num) for num in datestr.split(self.date_sep)[:2]]
+
+            max_first = max(max_first, day_and_month[0])
+            max_second = max(max_second, day_and_month[1])
+
+            if max_first > 12 or max_second > 12:
+                break
+
+        if max_first > 12 >= max_second:
+            return True
+        if max_first <= 12 < max_second:
+            return False
+        self._logger.warning(
+            "Can't infer date format: No day > 12. Falling back on day first."
+        )
+        return True
+
+    def _log_resulting_format(self):
+        start = "[" if self.has_brackets else ""
+        end = "]" if self.has_brackets else ""
+        if self.is_yearfirst:
+            date1 = "year"
+            if self.is_dayfirst:
+                date2 = "day"
+                date3 = "month"
+            else:
+                date2 = "month"
+                date3 = "day"
+        elif self.is_dayfirst:
+            date1 = "day"
+            date2 = "month"
+            date3 = "year"
         else:
-            message = "Media"
-        parsed_message = {
-            "author": from_name.text,
-            "datetime": datetimeparser.parse(mess.find("div", class_="date")["title"]),
-            "message": message,
-        }
-        return parsed_message
+            date1 = "month"
+            date2 = "day"
+            date3 = "year"
+        composition = f"{start}{date1}{self.date_sep}{date2}{self.date_sep}{date3}{end}"
+        self._logger.info("Inferred date format: %s", composition)
