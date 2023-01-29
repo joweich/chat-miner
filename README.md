@@ -1,3 +1,11 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="doc/_static/logo-wide-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="doc/_static/logo-wide-light.png">
+  <img alt="chat-miner: turn your chats into artwork" src="doc/_static/logo-wide-light.png">
+</picture>
+
+-----------------
+
 # chat-miner: turn your chats into artwork
 
 [![PyPI Version](https://img.shields.io/pypi/v/chat-miner.svg)](https://pypi.org/project/chat-miner/)
