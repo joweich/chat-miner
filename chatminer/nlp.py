@@ -1,5 +1,5 @@
-from transformers import pipeline
 import pandas as pd
+from transformers import pipeline
 
 
 def add_sentiment(df: pd.DataFrame, lang: str = "en") -> pd.DataFrame:
