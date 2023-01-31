@@ -281,7 +281,7 @@ class TelegramJsonParser(Parser):
                 )
                 body = " ".join(
                     map(
-                        lambda m: m["text"] if isinstance(m) is dict else m,
+                        lambda m: m["text"] if isinstance(m, dict) else m,
                         mess["text"],
                     )
                 )
