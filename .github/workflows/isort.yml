@@ -1,0 +1,12 @@
+name: isort
+on:
+  - pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: isort/isort-action@v1.0.0
+        with:
+            requirements-files: "requirements.txt"

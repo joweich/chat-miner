@@ -1,6 +1,7 @@
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from chatminer.chatparsers import WhatsAppParser, InstagramJsonParser
+
+from chatminer.chatparsers import InstagramJsonParser, WhatsAppParser
 
 
 def test_whatsapp():

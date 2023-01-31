@@ -1,19 +1,19 @@
 import calendar
 import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from wordcloud import WordCloud, STOPWORDS
 from dateutil.relativedelta import relativedelta
-from matplotlib.patches import Polygon
 from matplotlib.colors import ColorConverter, ListedColormap
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.patches import Circle, RegularPolygon
+from matplotlib.patches import Circle, Polygon, RegularPolygon
 from matplotlib.path import Path
-from matplotlib.projections.polar import PolarAxes
 from matplotlib.projections import register_projection
+from matplotlib.projections.polar import PolarAxes
 from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from wordcloud import STOPWORDS, WordCloud
 
 
 def sunburst(
