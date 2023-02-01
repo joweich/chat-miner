@@ -11,7 +11,7 @@ def test_whatsapp():
         df_res = parser.parsed_messages.get_df()
         df_test = pd.read_csv(
             f"test/whatsapp/test_{file}_target.csv",
-            parse_dates=["datetime"],
+            parse_dates=["timestamp"],
             infer_datetime_format=True,
         )
         assert_frame_equal(df_test, df_res)
@@ -48,7 +48,7 @@ def test_instagram():
     df_res = parser.parsed_messages.get_df()
     df_test = pd.read_csv(
         "test/instagram/testlog_target.csv",
-        parse_dates=["datetime"],
+        parse_dates=["timestamp"],
         infer_datetime_format=True,
     )
     assert_frame_equal(

@@ -4,6 +4,7 @@ import logging
 import re
 import unicodedata
 from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import pandas as pd
@@ -18,14 +19,11 @@ logging.basicConfig(
 )
 
 
+@dataclass(frozen=True)
 class ParsedMessage:
-    def __init__(self, time, author, body):
-        self.time = time
-        self.author = author
-        self.body = body
-
-    def get_dict(self):
-        return {"datetime": self.time, "author": self.author, "message": self.body}
+    timestamp: datetime
+    author: str
+    message: str
 
 
 class ParsedMessageCollection:
@@ -39,11 +37,11 @@ class ParsedMessageCollection:
     def get_df(self):
         messages_as_dict = []
         for mess in self._parsed_messages:
-            messages_as_dict.append(mess.get_dict())
+            messages_as_dict.append(asdict(mess))
 
         df = pd.DataFrame(messages_as_dict)
-        df["weekday"] = df["datetime"].dt.day_name()
-        df["hour"] = df["datetime"].dt.hour
+        df["weekday"] = df["timestamp"].dt.day_name()
+        df["hour"] = df["timestamp"].dt.hour
         df["words"] = df["message"].apply(lambda s: len(s.split(" ")))
         df["letters"] = df["message"].apply(len)
         return df

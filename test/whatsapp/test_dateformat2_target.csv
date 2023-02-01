@@ -1,4 +1,4 @@
-datetime,author,message,weekday,hour,words,letters
+timestamp,author,message,weekday,hour,words,letters
 2019-12-24 11:30:00,Jahn Doe,"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero.",Tuesday,11,10,69
 2019-11-17 21:34:00,John-John Doe,Lorem ipsum : dolor sit amet.,Sunday,21,6,29
 2019-11-27 21:30:00,John Doe,Lorem ipsum dolor sit amet.,Wednesday,21,5,27
