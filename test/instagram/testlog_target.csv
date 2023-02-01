@@ -1,4 +1,4 @@
-datetime,author,message,weekday,hour,words,letters
+timestamp,author,message,weekday,hour,words,letters
 2022-02-28 06:25:43.621,John Doe,disappearingmessage,Monday,6,1,19
 2019-12-25 00:30:00.000,John Doe,sentaudio,Wednesday,0,1,9
 2019-09-24 13:30:00.000,Jane Doe,sentvideo,Tuesday,13,1,9

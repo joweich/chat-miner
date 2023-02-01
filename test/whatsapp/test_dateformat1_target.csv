@@ -1,4 +1,4 @@
-datetime,author,message,weekday,hour,words,letters
+timestamp,author,message,weekday,hour,words,letters
 2017-07-16 19:13:00,+12 345 578,Lorem ipsum.,Sunday,19,2,12
 2014-12-24 17:08:00,System,You were added,Wednesday,17,3,14
 2014-12-24 17:08:00,System,"+12 345 578 created group ""Groupname""",Wednesday,17,6,37
