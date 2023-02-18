@@ -13,7 +13,7 @@ from matplotlib.projections.polar import PolarAxes
 from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-#from wordcloud import STOPWORDS, WordCloud
+from wordcloud import STOPWORDS, WordCloud
 import emoji
 
 
