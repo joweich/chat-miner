@@ -13,7 +13,8 @@ from matplotlib.projections.polar import PolarAxes
 from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from wordcloud import STOPWORDS, WordCloud
+#from wordcloud import STOPWORDS, WordCloud
+import emoji
 
 
 def sunburst(
@@ -387,3 +388,20 @@ def is_radar_registered():
     except ValueError:
         return False
     return True
+
+def get_emojis(input_string,append_emoji_list):
+    for i in range(0,len(input_string)):
+        if emoji.is_emoji(input_string[i]):
+            append_emoji_list.append(emoji.demojize(input_string[i]))
+
+def piechart_emoji(
+    df,
+    n_largest=10
+):
+    emoji_list=[]
+    for i in range(0,len(df.index)):
+        get_emojis(df["message"].iloc[i],emoji_list)
+    emoji_list = pd.Series(list(emoji_list))
+    freqs = emoji_list.value_counts()
+    freqs=freqs.nlargest(n=n_largest)
+    return freqs.plot.pie()
