@@ -165,7 +165,12 @@ class WhatsAppParser(Parser):
         )
 
         if ":" in author_and_body:
-            author, body = [x.strip() for x in author_and_body.split(": ", 1)]
+            splitted = [x.strip() for x in author_and_body.split(": ", 1)]
+            if len(splitted) == 2:
+                author, body = splitted
+            else:
+                self._logger.warning(f"Failed to parse message: {mess}. Skipped.")
+                return None
         else:
             author = "System"
             body = author_and_body.strip()
