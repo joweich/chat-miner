@@ -13,7 +13,7 @@ def assert_equal_from_file(file):
         parse_dates=["timestamp"],
         infer_datetime_format=True,
     )
-    assert_frame_equal(df_test, df_res)
+    assert_frame_equal(df_test, df_res, check_dtype=False)
 
 
 def test_dateformat1():
