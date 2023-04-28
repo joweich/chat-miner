@@ -1,3 +1,4 @@
+12/24/19, 11:23 - John Doe:.
 12/24/19, 11:23 - John Doe: Lorem ipsum dolor sit amet.
 12/24/19, 11:23 - John Doe: Lorem ipsum : dolor sit amet.
 12/26/19, 11:55 - John-John Doe: Lorem ipsum : dolor sit amet.

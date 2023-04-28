@@ -164,8 +164,11 @@ class WhatsAppParser(Parser):
             datestr, dayfirst=self._datefmt.is_dayfirst, fuzzy=True
         )
 
-        if ":" in author_and_body:
+        if ": " in author_and_body:
             author, body = [x.strip() for x in author_and_body.split(": ", 1)]
+        elif ":." in author_and_body:
+            author = [x.strip() for x in author_and_body.split(":.", 1)][0]
+            body = "<Disappearing Message>"
         else:
             author = "System"
             body = author_and_body.strip()
