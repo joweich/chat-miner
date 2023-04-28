@@ -8,3 +8,4 @@ timestamp,author,message,weekday,hour,words,letters
 2019-12-26 11:55:00,John-John Doe,Lorem ipsum : dolor sit amet.,Thursday,11,6,29
 2019-12-24 11:23:00,John Doe,Lorem ipsum : dolor sit amet.,Tuesday,11,6,29
 2019-12-24 11:23:00,John Doe,Lorem ipsum dolor sit amet.,Tuesday,11,5,27
+2019-12-24 11:23:00,John Doe,<Disappearing Message>,Tuesday,11,2,22

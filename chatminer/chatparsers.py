@@ -164,13 +164,11 @@ class WhatsAppParser(Parser):
             datestr, dayfirst=self._datefmt.is_dayfirst, fuzzy=True
         )
 
-        if ":" in author_and_body:
-            splitted = [x.strip() for x in author_and_body.split(": ", 1)]
-            if len(splitted) == 2:
-                author, body = splitted
-            else:
-                self._logger.warning(f"Failed to parse message: {mess}. Skipped.")
-                return None
+        if ": " in author_and_body:
+            author, body = [x.strip() for x in author_and_body.split(": ", 1)]
+        elif ":." in author_and_body:
+            author = [x.strip() for x in author_and_body.split(":.", 1)][0]
+            body = "<Disappearing Message>"
         else:
             author = "System"
             body = author_and_body.strip()
