@@ -227,6 +227,8 @@ class InstagramJsonParser(Parser):
             body = mess["content"]
         elif all(key in ("sender_name", "timestamp_ms", "reactions") for key in mess):
             body = "disappearingmessage"
+        elif any(key == "is_unsent" for key in mess):
+            return None
         else:
             self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
