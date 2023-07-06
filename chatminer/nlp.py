@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pandas as pd
 from transformers import pipeline
 
@@ -24,7 +26,7 @@ def add_sentiment(df: pd.DataFrame, lang: str = "en") -> pd.DataFrame:
     )
     sentiment_pipeline = pipeline("sentiment-analysis", model=model_path)
 
-    def extract_sentiment(message: str) -> str | None:
+    def extract_sentiment(message: str) -> Optional[str]:
         """
         Extract sentiment from message
 

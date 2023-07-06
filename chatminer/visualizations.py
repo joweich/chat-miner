@@ -1,8 +1,20 @@
 import calendar
 import datetime
+import sys
 from collections.abc import Iterable, Sequence
 from random import Random
-from typing import Any, Callable, Literal, TypedDict, Unpack
+from typing import (
+    Any,
+    Callable,
+    List,
+    Literal,
+    Optional,
+    Set,
+    Tuple,
+    TypedDict,
+    Union,
+    Unpack,
+)
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,6 +31,9 @@ from matplotlib.transforms import Affine2D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from wordcloud import STOPWORDS, WordCloud
 
+StrSeries = pd.Series[str] if sys.version_info >= (3, 10) else pd.Series
+IntSeries = pd.Series[int] if sys.version_info >= (3, 10) else pd.Series
+
 
 def sunburst(
     df: pd.DataFrame,
@@ -26,10 +41,10 @@ def sunburst(
     edgecolor: str = "black",
     linewidth: float = 0.5,
     highlight_max: bool = False,
-    isolines: list[float | int] | None = None,
+    isolines: Optional[List[Union[float, int]]] = None,
     isolines_relative: bool = True,
-    ax: PolarAxes | None = None,
-    authors: set[str] | list[str] | tuple[str, ...] | pd.Series[str] | None = None,
+    ax: Optional[PolarAxes] = None,
+    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], StrSeries]] = None,
 ) -> PolarAxes:
     if authors:
         df = df[df["author"].isin(authors)]
@@ -104,12 +119,12 @@ def sunburst(
 
 ColorFunc = Callable[
     [
-        str | None,
-        int | None,
-        tuple[int, int] | None,
-        int | None,
-        str | None,
-        Random | None,
+        Optional[str],
+        Optional[int],
+        Optional[Tuple[int, int]],
+        Optional[int],
+        Optional[str],
+        Optional[Random],
     ],
     None,
 ]
@@ -134,7 +149,7 @@ class WordCloudKwargs(TypedDict, total=False):
     relative_scaling: str
     regexp: str
     collocations: bool
-    colormap: str | Colormap
+    colormap: Union[str, Colormap]
     normalize_plurals: bool
     contour_width: int
     contour_color: str
@@ -146,15 +161,15 @@ class WordCloudKwargs(TypedDict, total=False):
 
 def wordcloud(
     df: pd.DataFrame,
-    ax: plt.Axes | None = None,
-    stopwords: Iterable[str] | None = None,
-    authors: set[str] | list[str] | tuple[str, ...] | pd.Series[str] | None = None,
+    ax: Optional[plt.Axes] = None,
+    stopwords: Optional[Iterable[str]] = None,
+    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], StrSeries]] = None,
     **kwargs: Unpack[WordCloudKwargs],
 ) -> plt.Axes:
     if authors:
         df = df[df["author"].isin(authors)]
 
-    messages: list[list[str]] = [mess.split() for mess in df["message"].values]
+    messages: List[List[str]] = [mess.split() for mess in df["message"].values]
     words = [word.lower() for sublist in messages for word in sublist]
 
     if stopwords:
@@ -179,8 +194,8 @@ def wordcloud(
 def calendar_heatmap(
     df: pd.DataFrame,
     year: int,
-    vmin: pd.Series[int] | None = None,
-    vmax: pd.Series[int] | None = None,
+    vmin: IntSeries | None = None,
+    vmax: IntSeries | None = None,
     cmap: str | Colormap = "Blues",
     fillcolor: str = "whitesmoke",
     linewidth: int = 1,
@@ -191,7 +206,7 @@ def calendar_heatmap(
     monthticks: bool = True,
     monthly_border: bool = False,
     ax: plt.Axes | None = None,
-    authors: set[str] | list[str] | tuple[str, ...] | pd.Series[str] | None = None,
+    authors: set[str] | List[str] | tuple[str, ...] | StrSeries | None = None,
     **kwargs,  # I give up on typing this
 ) -> plt.Axes:
     """
@@ -329,7 +344,7 @@ def radar(
     color: str = "C0",
     alpha: float = 0.3,
     ax: plt.Axes | None = None,
-    authors: set[str] | list[str] | tuple[str, ...] | pd.Series[str] | None = None,
+    authors: set[str] | List[str] | tuple[str, ...] | StrSeries | None = None,
 ) -> plt.Axes:
     if authors:
         df = df[df["author"].isin(authors)]
@@ -407,15 +422,14 @@ def radar_factory(num_vars: int, frame: Literal["circle", "polygon"] = "circle")
             # in axes coordinates.
             if frame == "circle":
                 return Circle((0.5, 0.5), 0.5)
-            elif frame == "polygon":
+            if frame == "polygon":
                 return RegularPolygon((0.5, 0.5), num_vars, radius=0.5, edgecolor="k")
-            else:
-                raise ValueError("Unknown value for 'frame': %s" % frame)
+            raise ValueError(f"Unknown value for 'frame': {frame}")
 
         def _gen_axes_spines(self):
             if frame == "circle":
                 return super()._gen_axes_spines()
-            elif frame == "polygon":
+            if frame == "polygon":
                 # spine_type must be 'left'/'right'/'top'/'bottom'/'circle'.
                 spine = Spine(
                     axes=self,
@@ -429,8 +443,7 @@ def radar_factory(num_vars: int, frame: Literal["circle", "polygon"] = "circle")
                     Affine2D().scale(0.5).translate(0.5, 0.5) + self.transAxes
                 )
                 return {"polar": spine}
-            else:
-                raise ValueError("Unknown value for 'frame': %s" % frame)
+            raise ValueError(f"Unknown value for 'frame': {frame}")
 
     register_projection(RadarAxes)
     return theta
