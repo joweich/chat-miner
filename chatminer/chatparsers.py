@@ -52,7 +52,7 @@ class Parser(ABC):
         self._file = Path(filepath)
         assert self._file.is_file()
 
-        self._raw_messages: Any = []
+        self._raw_messages: List[Dict[str, Any]] | List[str] = []
         self.parsed_messages = ParsedMessageCollection()
 
         self._logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ class Parser(ABC):
     def parse_file(self):
         self._logger.info("Starting reading raw messages...")
         self._read_raw_messages_from_file()
-        self._logger.info(f"Finished reading {len(self._raw_messages)} raw messages.")
+        self._logger.info(f"Finished reading %i raw messages.", len(self._raw_messages))
 
         self._logger.info("Starting parsing raw messages...")
         self._parse_raw_messages()
@@ -99,6 +99,7 @@ class SignalParser(Parser):
         with self._file.open(encoding="utf-8") as f:
             lines = reversed(list(f))
 
+        self._raw_messages: List[str]
         buffer: List[str] = []
         for line in lines:
             if not line:
@@ -137,6 +138,7 @@ class WhatsAppParser(Parser):
         with self._file.open(encoding="utf-8") as f:
             lines = reversed(list(f))
 
+        self._raw_messages: List[str]
         buffer: List[str] = []
         for line in lines:
             if not line:
@@ -178,7 +180,7 @@ class WhatsAppParser(Parser):
 class FacebookMessengerParser(Parser):
     def _read_raw_messages_from_file(self):
         with self._file.open(encoding="utf-8") as f:
-            self._raw_messages = json.load(f)["messages"]
+            self._raw_messages: List[Dict[str, Any]] = json.load(f)["messages"]
 
     def _parse_message(self, mess: Dict[str, Any]):
         body: str
@@ -189,7 +191,7 @@ class FacebookMessengerParser(Parser):
         elif "content" in mess:
             body = mess["content"]
         else:
-            self._logger.warning(f"Skipped message with unknown format: {mess}")
+            self._logger.warning(f"Skipped message with unknown format: %s", mess)
             return None
 
         time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
@@ -201,9 +203,9 @@ class FacebookMessengerParser(Parser):
 class InstagramJsonParser(Parser):
     def _read_raw_messages_from_file(self):
         with self._file.open(encoding="utf-8") as f:
-            self._raw_messages = json.load(f)["messages"]
+            self._raw_messages: List[Dict[str, Any]] = json.load(f)["messages"]
 
-    def _parse_message(self, mess: Dict[str, str]):
+    def _parse_message(self, mess: Dict[str, Any]):
         if "share" in mess:
             body = "sentshare"
         elif "photos" in mess:
@@ -231,10 +233,10 @@ class InstagramJsonParser(Parser):
         elif any(key == "is_unsent" for key in mess):
             return None
         else:
-            self._logger.warning(f"Skipped message with unknown format: {mess}")
+            self._logger.warning(f"Skipped message with unknown format: %s", mess)
             return None
 
-        time = dt.datetime.fromtimestamp(int(mess["timestamp_ms"]) / 1000)
+        time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
         body = body.encode("latin-1").decode("utf-8")
         return ParsedMessage(time, author, body)
@@ -253,7 +255,7 @@ class TelegramJsonParser(Parser):
             self._raw_messages = json_objects["messages"]
         else:
             if self.chat_name:
-                self._logger.info(f"Searching for chat {self.chat_name}...")
+                self._logger.info("Searching for chat %s...", self.chat_name)
                 for chat in json_objects["chats"]["list"]:
                     if "name" in chat and chat["name"] == self.chat_name:
                         self._raw_messages = chat["messages"]
@@ -262,14 +264,14 @@ class TelegramJsonParser(Parser):
                 self._logger.info(
                     'No chat name was specified, searching for chat "Saved Messages"...'
                 )
-                # ? Does this take long enough to add tqdm around `json_objects`
                 for chat in json_objects["chats"]["list"]:
                     if chat["type"] == "saved_messages":
                         self._raw_messages = chat["messages"]
                         break
         if not self._raw_messages:
             self._logger.error(
-                f"Chat {self.chat_name if self.chat_name else 'Saved Messages'} was not found.",
+                "Chat %s was not found.",
+                self.chat_name if self.chat_name else "Saved Messages",
             )
 
     def _parse_message(self, mess: Dict[str, Any]):
@@ -385,5 +387,7 @@ class WhatsAppDateFormat:
             date1 = "month"
             date2 = "day"
             date3 = "year"
-        composition = f"{start}{date1}{self.date_sep}{date2}{self.date_sep}{date3}{end}"
-        self._logger.info(f"Inferred date format: {composition}")
+        self._logger.info(
+            "Inferred date format: %s%s%s%s%s%s%s",
+            (start, date1, self.date_sep, date2, self.date_sep, date3, end),
+        )
