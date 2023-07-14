@@ -149,7 +149,7 @@ def calendar_heatmap(
     if authors:
         df = df[df["author"].isin(authors)]
 
-    if not year in df["timestamp"].dt.year.values:
+    if year not in df["timestamp"].dt.year.values:
         available_years = df["timestamp"].dt.year.unique()
         raise ValueError(
             f"No message in year {year}. Available years: {available_years}"
@@ -162,9 +162,9 @@ def calendar_heatmap(
     df = df.set_index("timestamp").reindex(idx)
 
     if vmin is None:
-        vmin = df.min()
+        vmin = int(df["message"].min())
     if vmax is None:
-        vmax = df.max()
+        vmax = int(df["message"].max())
 
     if ax is None:
         ax = plt.gca()
@@ -195,9 +195,7 @@ def calendar_heatmap(
 
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="3%", pad=0.08)
-    plt.colorbar(
-        pc, cax=cax, ticks=[min(vmin), int((min(vmin) + max(vmax)) / 2), max(vmax)]
-    )
+    plt.colorbar(pc, cax=cax, ticks=[vmin, int((vmin + vmax) / 2), vmax])
 
     ax.set(xlim=(0, plot_data.shape[1]), ylim=(0, plot_data.shape[0]))
 
