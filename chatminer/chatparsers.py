@@ -387,7 +387,5 @@ class WhatsAppDateFormat:
             date1 = "month"
             date2 = "day"
             date3 = "year"
-        self._logger.info(
-            "Inferred date format: %s%s%s%s%s%s%s",
-            (start, date1, self.date_sep, date2, self.date_sep, date3, end),
-        )
+        composition = f"{start}{date1}{self.date_sep}{date2}{self.date_sep}{date3}{end}"
+        self._logger.info("Inferred date format: %s", composition)
