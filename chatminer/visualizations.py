@@ -1,11 +1,27 @@
 import calendar
 import datetime
+import sys
+from collections.abc import Iterable, Sequence
+from random import Random
+from typing import (
+    Any,
+    Callable,
+    List,
+    Literal,
+    Optional,
+    Set,
+    Tuple,
+    TypedDict,
+    Union,
+    Unpack,
+)
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
-from matplotlib.colors import ColorConverter, ListedColormap
+from matplotlib.colors import ColorConverter, Colormap, ListedColormap
+from matplotlib.lines import Line2D
 from matplotlib.patches import Circle, Polygon, RegularPolygon
 from matplotlib.path import Path
 from matplotlib.projections import register_projection
@@ -15,18 +31,21 @@ from matplotlib.transforms import Affine2D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from wordcloud import STOPWORDS, WordCloud
 
+StrSeries = pd.Series[str] if sys.version_info >= (3, 10) else pd.Series
+IntSeries = pd.Series[int] if sys.version_info >= (3, 10) else pd.Series
+
 
 def sunburst(
-    df,
-    color="C0",
-    edgecolor="black",
-    linewidth=0.5,
-    highlight_max=False,
-    isolines=None,
-    isolines_relative=True,
-    ax=None,
-    authors=None,
-):
+    df: pd.DataFrame,
+    color: str = "C0",
+    edgecolor: str = "black",
+    linewidth: float = 0.5,
+    highlight_max: bool = False,
+    isolines: Optional[List[Union[float, int]]] = None,
+    isolines_relative: bool = True,
+    ax: Optional[PolarAxes] = None,
+    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], StrSeries]] = None,
+) -> PolarAxes:
     if authors:
         df = df[df["author"].isin(authors)]
 
@@ -37,6 +56,7 @@ def sunburst(
 
     if ax is None:
         _, ax = plt.subplots(subplot_kw={"projection": "polar"})
+    assert ax is not None  # For type-checking
 
     x = np.arange(0, 2 * np.pi, 2 * np.pi / len(hourly_count)) + np.pi / len(
         hourly_count
@@ -97,11 +117,59 @@ def sunburst(
     return ax
 
 
-def wordcloud(df, ax=None, stopwords=None, authors=None, **kwargs):
+ColorFunc = Callable[
+    [
+        Optional[str],
+        Optional[int],
+        Optional[Tuple[int, int]],
+        Optional[int],
+        Optional[str],
+        Optional[Random],
+    ],
+    None,
+]
+
+
+class WordCloudKwargs(TypedDict, total=False):
+    font_path: str
+    width: int
+    height: int
+    margin: int
+    prefer_horizontal: float
+    mask: np.ndarray[Any, Any]  # type: ignore
+    scale: int
+    color_func: ColorFunc
+    max_words: int
+    min_font_size: int
+    random_state: Random
+    background_color: str
+    max_font_size: int
+    font_step: int
+    mode: str
+    relative_scaling: str
+    regexp: str
+    collocations: bool
+    colormap: Union[str, Colormap]
+    normalize_plurals: bool
+    contour_width: int
+    contour_color: str
+    repeat: bool
+    include_numbers: bool
+    min_word_length: int
+    collocation_threshold: int
+
+
+def wordcloud(
+    df: pd.DataFrame,
+    ax: Optional[plt.Axes] = None,
+    stopwords: Optional[Iterable[str]] = None,
+    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], StrSeries]] = None,
+    **kwargs: Unpack[WordCloudKwargs],
+) -> plt.Axes:
     if authors:
         df = df[df["author"].isin(authors)]
 
-    messages = [mess.split() for mess in df["message"].values]
+    messages: List[List[str]] = [mess.split() for mess in df["message"].values]
     words = [word.lower() for sublist in messages for word in sublist]
 
     if stopwords:
@@ -124,23 +192,23 @@ def wordcloud(df, ax=None, stopwords=None, authors=None, **kwargs):
 
 
 def calendar_heatmap(
-    df,
-    year,
-    vmin=None,
-    vmax=None,
-    cmap="Blues",
-    fillcolor="whitesmoke",
-    linewidth=1,
-    linecolor=None,
-    daylabels=calendar.day_abbr[:],
-    dayticks=True,
-    monthlabels=calendar.month_abbr[1:],
-    monthticks=True,
-    monthly_border=False,
-    ax=None,
-    authors=None,
-    **kwargs,
-):
+    df: pd.DataFrame,
+    year: int,
+    vmin: IntSeries | None = None,
+    vmax: IntSeries | None = None,
+    cmap: str | Colormap = "Blues",
+    fillcolor: str = "whitesmoke",
+    linewidth: int = 1,
+    linecolor: plt.Color | None = None,
+    daylabels: Sequence[str] = calendar.day_abbr[:],
+    dayticks: bool = True,
+    monthlabels: Sequence[str] = calendar.month_abbr[1:],
+    monthticks: bool = True,
+    monthly_border: bool = False,
+    ax: plt.Axes | None = None,
+    authors: set[str] | List[str] | tuple[str, ...] | StrSeries | None = None,
+    **kwargs,  # I give up on typing this
+) -> plt.Axes:
     """
     Adapted from https://github.com/MarvinT/calmap.
     Copyright (c) 2015 by Martijn Vermaat and contributors
@@ -168,6 +236,7 @@ def calendar_heatmap(
 
     if ax is None:
         ax = plt.gca()
+    assert isinstance(ax, plt.Axes)  # For type-checking
 
     if linecolor is None:
         linecolor = ax.get_facecolor()
@@ -194,7 +263,8 @@ def calendar_heatmap(
     pc = ax.pcolormesh(plot_data, vmin=vmin, vmax=vmax, cmap=cmap, **kwargs)
 
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="3%", pad=0.08)
+    cax: plt.Axes = divider.append_axes("right", size="3%", pad=0.08)
+    assert isinstance(cax, plt.Axes)
     plt.colorbar(pc, cax=cax, ticks=[vmin, int((vmin + vmax) / 2), vmax])
 
     ax.set(xlim=(0, plot_data.shape[1]), ylim=(0, plot_data.shape[0]))
@@ -268,12 +338,12 @@ def calendar_heatmap(
 
 
 def radar(
-    df,
-    color="C0",
-    alpha=0.3,
-    ax=None,
-    authors=None,
-):
+    df: pd.DataFrame,
+    color: str = "C0",
+    alpha: float = 0.3,
+    ax: plt.Axes | None = None,
+    authors: set[str] | List[str] | tuple[str, ...] | StrSeries | None = None,
+) -> plt.Axes:
     if authors:
         df = df[df["author"].isin(authors)]
 
@@ -299,7 +369,7 @@ def radar(
     return ax
 
 
-def radar_factory(num_vars, frame="circle"):
+def radar_factory(num_vars: int, frame: Literal["circle", "polygon"] = "circle"):
     """
     Source: https://matplotlib.org/stable/gallery/specialty_plots/radar_chart.html
     """
@@ -307,7 +377,7 @@ def radar_factory(num_vars, frame="circle"):
     theta = np.linspace(0, 2 * np.pi, num_vars, endpoint=False)
 
     class RadarTransform(PolarAxes.PolarTransform):
-        def transform_path_non_affine(self, path):
+        def transform_path_non_affine(self, path: Path):
             # Paths with non-unit interpolation steps correspond to gridlines,
             # in which case we force interpolation (to defeat PolarTransform's
             # autoconversion to circular arcs).
@@ -334,7 +404,7 @@ def radar_factory(num_vars, frame="circle"):
             for line in lines:
                 self._close_line(line)
 
-        def _close_line(self, line):
+        def _close_line(self, line: Line2D):
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:
@@ -342,7 +412,7 @@ def radar_factory(num_vars, frame="circle"):
                 y = np.append(y, y[0])
                 line.set_data(x, y)
 
-        def set_varlabels(self, labels):
+        def set_varlabels(self, labels: tuple[str, ...] | None):
             self.set_thetagrids(np.degrees(theta), labels)
 
         def _gen_axes_patch(self):
@@ -350,15 +420,14 @@ def radar_factory(num_vars, frame="circle"):
             # in axes coordinates.
             if frame == "circle":
                 return Circle((0.5, 0.5), 0.5)
-            elif frame == "polygon":
+            if frame == "polygon":
                 return RegularPolygon((0.5, 0.5), num_vars, radius=0.5, edgecolor="k")
-            else:
-                raise ValueError("Unknown value for 'frame': %s" % frame)
+            raise ValueError(f"Unknown value for 'frame': {frame}")
 
         def _gen_axes_spines(self):
             if frame == "circle":
                 return super()._gen_axes_spines()
-            elif frame == "polygon":
+            if frame == "polygon":
                 # spine_type must be 'left'/'right'/'top'/'bottom'/'circle'.
                 spine = Spine(
                     axes=self,
@@ -372,8 +441,7 @@ def radar_factory(num_vars, frame="circle"):
                     Affine2D().scale(0.5).translate(0.5, 0.5) + self.transAxes
                 )
                 return {"polar": spine}
-            else:
-                raise ValueError("Unknown value for 'frame': %s" % frame)
+            raise ValueError(f"Unknown value for 'frame': {frame}")
 
     register_projection(RadarAxes)
     return theta
