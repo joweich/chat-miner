@@ -132,7 +132,7 @@ class WhatsAppParser(Parser):
 
     def _read_raw_messages_from_file(self):
         def _is_new_message(line: str):
-            regex = r"^[\u200e]?\[?((\d{1})|(\d{2})|(\d{4}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2}))((\,)|(\ ))"
+            regex = r"^[\u200e]?\[?(\d{1,4})([./,-])\d{1,2}\2\d{2,4}([, ])"
             return re.match(regex, line)
 
         with self._file.open(encoding="utf-8") as f:
