@@ -59,7 +59,7 @@ class Parser(ABC):
         self._logger.info(
             """
             Depending on the platform, the message format in chat logs might not be
-            standardized accross devices/versions/localization and might change over
+            standardized across devices/versions/localization and might change over
             time. Please report issues including your message format via GitHub.
             """
         )
