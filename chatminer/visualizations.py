@@ -276,13 +276,6 @@ def calendar_heatmap(
     ax.xaxis.set_tick_params(which="both", length=0)
     ax.yaxis.set_tick_params(which="both", length=0)
 
-    if monthticks is True:
-        monthticks = range(len(monthlabels))
-    elif monthticks is False:
-        monthticks = []
-    elif isinstance(monthticks, int):
-        monthticks = range(len(monthlabels))[monthticks // 2 :: monthticks]
-
     if dayticks is True:
         dayticks = range(len(daylabels))
     elif dayticks is False:
