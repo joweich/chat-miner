@@ -59,7 +59,7 @@ class Parser(ABC):
         self._logger.info(
             """
             Depending on the platform, the message format in chat logs might not be
-            standardized accross devices/versions/localization and might change over
+            standardized across devices/versions/localization and might change over
             time. Please report issues including your message format via GitHub.
             """
         )
@@ -132,7 +132,7 @@ class WhatsAppParser(Parser):
 
     def _read_raw_messages_from_file(self):
         def _is_new_message(line: str):
-            regex = r"^[\u200e]?\[?((\d{1})|(\d{2})|(\d{4}))((\.)|(\/)|(\-))((\d{1})|(\d{2}))((\.)|(\/)|(\-))((\d{4})|(\d{2}))((\,)|(\ ))"
+            regex = r"^[\u200e]?\[?(\d{1,4})([./,-])\d{1,2}\2\d{2,4}([, ])"
             return re.match(regex, line)
 
         with self._file.open(encoding="utf-8") as f:
@@ -279,18 +279,10 @@ class TelegramJsonParser(Parser):
             if isinstance(mess["text"], str):
                 body = mess["text"]
             elif isinstance(mess["text"], list):
-                assert all(
-                    [
-                        (isinstance(m, dict) and "text" in m) or isinstance(m, str)
-                        for m in mess["text"]
-                    ]
-                )
-                body = " ".join(
-                    map(
-                        lambda m: m["text"] if isinstance(m, dict) else m,
-                        mess["text"],
-                    )
-                )
+                text_elements = [
+                    m["text"] if isinstance(m, dict) else m for m in mess["text"]
+                ]
+                body = " ".join(text_elements)
             else:
                 raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
 
@@ -317,7 +309,8 @@ class WhatsAppDateFormat:
         self.is_dayfirst = self._infer_dayfirst(raw_messages)
         self._log_resulting_format()
 
-    def _infer_brackets(self, mess: str):
+    @staticmethod
+    def _infer_brackets(mess: str):
         return mess[0] == "["
 
     def _infer_date_author_sep(self):

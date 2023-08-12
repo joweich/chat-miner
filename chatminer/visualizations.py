@@ -276,13 +276,6 @@ def calendar_heatmap(
     ax.xaxis.set_tick_params(which="both", length=0)
     ax.yaxis.set_tick_params(which="both", length=0)
 
-    if monthticks is True:
-        monthticks = range(len(monthlabels))
-    elif monthticks is False:
-        monthticks = []
-    elif isinstance(monthticks, int):
-        monthticks = range(len(monthlabels))[monthticks // 2 :: monthticks]
-
     if dayticks is True:
         dayticks = range(len(daylabels))
     elif dayticks is False:
@@ -404,7 +397,8 @@ def radar_factory(num_vars: int, frame: Literal["circle", "polygon"] = "circle")
             for line in lines:
                 self._close_line(line)
 
-        def _close_line(self, line: Line2D):
+        @staticmethod
+        def _close_line(line: Line2D):
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:
