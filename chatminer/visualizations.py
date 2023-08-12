@@ -404,7 +404,8 @@ def radar_factory(num_vars: int, frame: Literal["circle", "polygon"] = "circle")
             for line in lines:
                 self._close_line(line)
 
-        def _close_line(self, line: Line2D):
+        @staticmethod
+        def _close_line(line: Line2D):
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:

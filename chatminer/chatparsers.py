@@ -317,7 +317,8 @@ class WhatsAppDateFormat:
         self.is_dayfirst = self._infer_dayfirst(raw_messages)
         self._log_resulting_format()
 
-    def _infer_brackets(self, mess: str):
+    @staticmethod
+    def _infer_brackets(mess: str):
         return mess[0] == "["
 
     def _infer_date_author_sep(self):
