@@ -279,18 +279,10 @@ class TelegramJsonParser(Parser):
             if isinstance(mess["text"], str):
                 body = mess["text"]
             elif isinstance(mess["text"], list):
-                assert all(
-                    [
-                        (isinstance(m, dict) and "text" in m) or isinstance(m, str)
-                        for m in mess["text"]
-                    ]
-                )
-                body = " ".join(
-                    map(
-                        lambda m: m["text"] if isinstance(m, dict) else m,
-                        mess["text"],
-                    )
-                )
+                text_elements = [
+                    m["text"] if isinstance(m, dict) else m for m in mess["text"]
+                ]
+                body = " ".join(text_elements)
             else:
                 raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
 
