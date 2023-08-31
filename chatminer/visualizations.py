@@ -1,19 +1,13 @@
 import calendar
 import datetime
-import sys
 from collections.abc import Iterable, Sequence
-from random import Random
 from typing import (
-    Any,
-    Callable,
     List,
     Literal,
     Optional,
     Set,
     Tuple,
-    TypedDict,
     Union,
-    Unpack,
 )
 
 import matplotlib.pyplot as plt
@@ -31,9 +25,6 @@ from matplotlib.transforms import Affine2D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from wordcloud import STOPWORDS, WordCloud
 
-StrSeries = pd.Series[str] if sys.version_info >= (3, 10) else pd.Series
-IntSeries = pd.Series[int] if sys.version_info >= (3, 10) else pd.Series
-
 
 def sunburst(
     df: pd.DataFrame,
@@ -44,7 +35,7 @@ def sunburst(
     isolines: Optional[List[Union[float, int]]] = None,
     isolines_relative: bool = True,
     ax: Optional[PolarAxes] = None,
-    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], StrSeries]] = None,
+    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], pd.Series]] = None,
 ) -> PolarAxes:
     if authors:
         df = df[df["author"].isin(authors)]
@@ -117,54 +108,12 @@ def sunburst(
     return ax
 
 
-ColorFunc = Callable[
-    [
-        Optional[str],
-        Optional[int],
-        Optional[Tuple[int, int]],
-        Optional[int],
-        Optional[str],
-        Optional[Random],
-    ],
-    None,
-]
-
-
-class WordCloudKwargs(TypedDict, total=False):
-    font_path: str
-    width: int
-    height: int
-    margin: int
-    prefer_horizontal: float
-    mask: np.ndarray[Any, Any]  # type: ignore
-    scale: int
-    color_func: ColorFunc
-    max_words: int
-    min_font_size: int
-    random_state: Random
-    background_color: str
-    max_font_size: int
-    font_step: int
-    mode: str
-    relative_scaling: str
-    regexp: str
-    collocations: bool
-    colormap: Union[str, Colormap]
-    normalize_plurals: bool
-    contour_width: int
-    contour_color: str
-    repeat: bool
-    include_numbers: bool
-    min_word_length: int
-    collocation_threshold: int
-
-
 def wordcloud(
     df: pd.DataFrame,
     ax: Optional[plt.Axes] = None,
     stopwords: Optional[Iterable[str]] = None,
-    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], StrSeries]] = None,
-    **kwargs: Unpack[WordCloudKwargs],
+    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], pd.Series]] = None,
+    **kwargs,
 ) -> plt.Axes:
     if authors:
         df = df[df["author"].isin(authors)]
@@ -194,20 +143,18 @@ def wordcloud(
 def calendar_heatmap(
     df: pd.DataFrame,
     year: int,
-    vmin: IntSeries | None = None,
-    vmax: IntSeries | None = None,
+    vmin: pd.Series | None = None,
+    vmax: pd.Series | None = None,
     cmap: str | Colormap = "Blues",
     fillcolor: str = "whitesmoke",
     linewidth: int = 1,
-    linecolor: plt.Color | None = None,
+    linecolor: str | None = None,
     daylabels: Sequence[str] = calendar.day_abbr[:],
     dayticks: bool = True,
-    monthlabels: Sequence[str] = calendar.month_abbr[1:],
-    monthticks: bool = True,
     monthly_border: bool = False,
     ax: plt.Axes | None = None,
-    authors: set[str] | List[str] | tuple[str, ...] | StrSeries | None = None,
-    **kwargs,  # I give up on typing this
+    authors: set[str] | List[str] | tuple[str, ...] | pd.Series | None = None,
+    **kwargs,
 ) -> plt.Axes:
     """
     Adapted from https://github.com/MarvinT/calmap.
@@ -335,7 +282,7 @@ def radar(
     color: str = "C0",
     alpha: float = 0.3,
     ax: plt.Axes | None = None,
-    authors: set[str] | List[str] | tuple[str, ...] | StrSeries | None = None,
+    authors: set[str] | List[str] | tuple[str, ...] | pd.Series | None = None,
 ) -> plt.Axes:
     if authors:
         df = df[df["author"].isin(authors)]
