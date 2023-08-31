@@ -11,7 +11,6 @@ def test_instagram():
     df_test = pd.read_csv(
         "test/instagram/testlog_target.csv",
         parse_dates=["timestamp"],
-        infer_datetime_format=True,
     )
     assert_frame_equal(
         df_test[["author", "message", "words", "letters"]],
