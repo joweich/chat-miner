@@ -1,13 +1,11 @@
 import calendar
 import datetime
-from typing import List, Literal, Optional, Set, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
-from matplotlib.colors import ColorConverter, Colormap, ListedColormap
-from matplotlib.lines import Line2D
+from matplotlib.colors import ColorConverter, ListedColormap
 from matplotlib.patches import Circle, Polygon, RegularPolygon
 from matplotlib.path import Path
 from matplotlib.projections import register_projection
@@ -20,14 +18,14 @@ from wordcloud import STOPWORDS, WordCloud
 
 def sunburst(
     df: pd.DataFrame,
-    color: str = "C0",
-    edgecolor: str = "black",
-    linewidth: float = 0.5,
-    highlight_max: bool = False,
-    isolines: Optional[List[Union[float, int]]] = None,
-    isolines_relative: bool = True,
-    ax: Optional[PolarAxes] = None,
-    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], pd.Series]] = None,
+    color="C0",
+    edgecolor="black",
+    linewidth=0.5,
+    highlight_max=False,
+    isolines=None,
+    isolines_relative=True,
+    ax=None,
+    authors=None,
 ) -> PolarAxes:
     if authors:
         df = df[df["author"].isin(authors)]
@@ -101,16 +99,16 @@ def sunburst(
 
 
 def wordcloud(
-    df: pd.DataFrame,
-    ax: Optional[plt.Axes] = None,
+    df,
+    ax=None,
     stopwords=None,
-    authors: Optional[Union[Set[str], List[str], Tuple[str, ...], pd.Series]] = None,
+    authors=None,
     **kwargs,
 ) -> plt.Axes:
     if authors:
         df = df[df["author"].isin(authors)]
 
-    messages: List[List[str]] = [mess.split() for mess in df["message"].values]
+    messages = [mess.split() for mess in df["message"].values]
     words = [word.lower() for sublist in messages for word in sublist]
 
     if stopwords:
@@ -135,17 +133,17 @@ def wordcloud(
 def calendar_heatmap(
     df: pd.DataFrame,
     year: int,
-    vmin: pd.Series | None = None,
-    vmax: pd.Series | None = None,
-    cmap: str | Colormap = "Blues",
-    fillcolor: str = "whitesmoke",
-    linewidth: int = 1,
-    linecolor: str | None = None,
+    vmin=None,
+    vmax=None,
+    cmap="Blues",
+    fillcolor="whitesmoke",
+    linewidth=1,
+    linecolor=None,
     daylabels=calendar.day_abbr[:],
-    dayticks: bool = True,
-    monthly_border: bool = False,
-    ax: plt.Axes | None = None,
-    authors: set[str] | List[str] | tuple[str, ...] | pd.Series | None = None,
+    dayticks=True,
+    monthly_border=False,
+    ax=None,
+    authors=None,
     **kwargs,
 ) -> plt.Axes:
     """
@@ -270,11 +268,11 @@ def calendar_heatmap(
 
 
 def radar(
-    df: pd.DataFrame,
-    color: str = "C0",
-    alpha: float = 0.3,
-    ax: plt.Axes | None = None,
-    authors: set[str] | List[str] | tuple[str, ...] | pd.Series | None = None,
+    df,
+    color="C0",
+    alpha=0.3,
+    ax=None,
+    authors=None,
 ) -> plt.Axes:
     if authors:
         df = df[df["author"].isin(authors)]
@@ -301,7 +299,7 @@ def radar(
     return ax
 
 
-def radar_factory(num_vars: int, frame: Literal["circle", "polygon"] = "circle"):
+def radar_factory(num_vars, frame="circle"):
     """
     Source: https://matplotlib.org/stable/gallery/specialty_plots/radar_chart.html
     """
@@ -337,7 +335,7 @@ def radar_factory(num_vars: int, frame: Literal["circle", "polygon"] = "circle")
                 self._close_line(line)
 
         @staticmethod
-        def _close_line(line: Line2D):
+        def _close_line(line):
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:
@@ -345,7 +343,7 @@ def radar_factory(num_vars: int, frame: Literal["circle", "polygon"] = "circle")
                 y = np.append(y, y[0])
                 line.set_data(x, y)
 
-        def set_varlabels(self, labels: tuple[str, ...] | None):
+        def set_varlabels(self, labels):
             self.set_thetagrids(np.degrees(theta), labels)
 
         def _gen_axes_patch(self):
