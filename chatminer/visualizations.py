@@ -1,6 +1,5 @@
 import calendar
 import datetime
-from collections.abc import Iterable, Sequence
 from typing import List, Literal, Optional, Set, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -104,7 +103,7 @@ def sunburst(
 def wordcloud(
     df: pd.DataFrame,
     ax: Optional[plt.Axes] = None,
-    stopwords: Optional[Iterable[str]] = None,
+    stopwords=None,
     authors: Optional[Union[Set[str], List[str], Tuple[str, ...], pd.Series]] = None,
     **kwargs,
 ) -> plt.Axes:
@@ -142,7 +141,7 @@ def calendar_heatmap(
     fillcolor: str = "whitesmoke",
     linewidth: int = 1,
     linecolor: str | None = None,
-    daylabels: Sequence[str] = calendar.day_abbr[:],
+    daylabels=calendar.day_abbr[:],
     dayticks: bool = True,
     monthly_border: bool = False,
     ax: plt.Axes | None = None,
