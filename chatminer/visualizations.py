@@ -1,14 +1,7 @@
 import calendar
 import datetime
 from collections.abc import Iterable, Sequence
-from typing import (
-    List,
-    Literal,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import List, Literal, Optional, Set, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
