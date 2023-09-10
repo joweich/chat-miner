@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
-import argparse, sys
+import argparse
+import sys
+
 from chatminer.chatparsers import (
-    WhatsAppParser,
     FacebookMessengerParser,
     InstagramJsonParser,
     SignalParser,
     TelegramJsonParser,
+    WhatsAppParser,
 )
 
 
