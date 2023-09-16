@@ -93,3 +93,28 @@ ax[1] = vis.radar(df, ax=ax[1], color='C1', alpha=0)
 <p align="center">
   <img src="examples/radar.svg">
 </p>
+
+
+## 5. Command Line Interface
+The CLI supports parsing chat logs into csv files.
+As of now, you **can't** create visualizations from the CLI directly.
+
+Example usage:
+```bash
+$ chatminer -p whatsapp -i exportfile.txt -o output.csv
+```
+
+Usage guide:
+```
+usage: chatminer [-h] [-p {whatsapp,instagram,facebook,signal,telegram}] [-i INPUT] [-o OUTPUT]
+
+options:
+  -h, --help 
+                        Show this help message and exit
+  -p {whatsapp,instagram,facebook,signal,telegram}, --parser {whatsapp,instagram,facebook,signal,telegram}
+                        The platform from which the chats are imported
+  -i INPUT, --input INPUT
+                        Input file to be processed
+  -o OUTPUT, --output OUTPUT
+                        Output file for the results
+```
