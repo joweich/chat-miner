@@ -94,8 +94,21 @@ ax[1] = vis.radar(df, ax=ax[1], color='C1', alpha=0)
   <img src="examples/radar.svg">
 </p>
 
+## 5. NLP Package Usage
 
-## 5. Command Line Interface
+```python
+from chatminer.nlp import add_sentiment
+```
+### 5.1 Add Sentiment 
+
+Extracts sentiment from the message and adds sentiment column to the input dataframe.
+
+```python
+# Adds sentiment column to the DataFrame
+df_with_sentiment = add_sentiment(df)
+```
+
+## 6. Command Line Interface
 The CLI supports parsing chat logs into csv files.
 As of now, you **can't** create visualizations from the CLI directly.
 
