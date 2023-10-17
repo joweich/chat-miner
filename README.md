@@ -44,6 +44,20 @@ parser = WhatsAppParser(FILEPATH)
 parser.parse_file()
 df = parser.parsed_messages.get_df()
 ```
+Note:
+You can either use **double backslashes** or **a raw string by prefixing the string with an 'r**' in FILEPATH to avoid syntax error due to backslashes in path.
+
+```python
+# Use a raw string for the file path
+file_path = r"C:\Users\YourUsername\Downloads\sample_chat.txt"
+```
+**OR**
+
+```python
+# Use double backslashes for the file path
+file_path = "C:\\Users\\YourUsername\\Downloads\\sample.txt"
+```
+
 ## 4. Visualizing
 ```python
 import chatminer.visualizations as vis
