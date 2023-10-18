@@ -44,7 +44,7 @@ parser = WhatsAppParser(FILEPATH)
 parser.parse_file()
 df = parser.parsed_messages.get_df()
 ```
-Note:
+**Note:**
 Depending on your source system, Python requires to convert the filepath to a raw string.
 ```python
 import os
