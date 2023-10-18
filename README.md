@@ -96,17 +96,12 @@ ax[1] = vis.radar(df, ax=ax[1], color='C1', alpha=0)
 
 ## 5. NLP Package Usage
 
-```python
-from chatminer.nlp import add_sentiment
-```
 ### 5.1 Add Sentiment 
 
-Extracts sentiment from the message and adds sentiment column to the input dataframe.
-
 ```python
-# Adds sentiment column to the DataFrame
+from chatminer.nlp import add_sentiment
+
 df_with_sentiment = add_sentiment(df)
-```
 
 ## 6. Command Line Interface
 The CLI supports parsing chat logs into csv files.
