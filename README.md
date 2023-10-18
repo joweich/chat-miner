@@ -44,6 +44,16 @@ parser = WhatsAppParser(FILEPATH)
 parser.parse_file()
 df = parser.parsed_messages.get_df()
 ```
+**Note:**
+Depending on your source system, Python requires to convert the filepath to a raw string.
+```python
+import os
+FILEPATH = r"C:\Users\Username\chat.txt" # Windows
+FILEPATH = "/home/username/chat.txt" # Unix
+assert os.path.isfile(FILEPATH)
+
+```
+
 ## 4. Visualizing
 ```python
 import chatminer.visualizations as vis
