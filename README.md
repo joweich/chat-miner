@@ -102,6 +102,21 @@ ax[1] = vis.radar(df, ax=ax[1], color='C1', alpha=0)
 from chatminer.nlp import add_sentiment
 
 df_with_sentiment = add_sentiment(df)
+```
+### 5.2 Stacked Bar Chart:Sentiment per Day of the Week
+
+```python
+grouped = df_with_sentiment.groupby(['weekday', 'sentiment']).size().unstack(fill_value=0)
+ax = grouped.plot(kind='bar', stacked=True, figsize=(10, 6), colormap=plt.cm.get_cmap('Set3'))
+ax.set(xlabel='Day of the Week', ylabel='Count', title='Sentiment per Day of the Week')
+ax.legend(title='Sentiment', loc='upper right')
+plt.show()
+```
+
+<p align="center">
+  <img src="examples/stacked_bar_chart.png">
+</p>
+
 
 ## 6. Command Line Interface
 The CLI supports parsing chat logs into csv files.
