@@ -39,8 +39,8 @@ def add_sentiment(df: pd.DataFrame, lang: str = "en") -> pd.DataFrame:
         """
         try:
             return str(sentiment_pipeline(message)[0]["label"])
-        except:
-            print(f"Error processing message: {message}")
+        except Exception as e:
+            print(f"Error processing message: {message}: {e}")
             return None
 
     df["sentiment"] = df["message"].apply(extract_sentiment)
