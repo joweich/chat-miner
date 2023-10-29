@@ -44,7 +44,7 @@ def main():
     try:
         args, cliparser = get_args()
 
-        if args.input is None or OUTPUT_FILE is None or args.parser is None:
+        if args.input is None or args.output is None or args.parser is None:
             raise ValueError
 
         if (args.parser).lower() == "whatsapp":
