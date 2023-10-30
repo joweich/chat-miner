@@ -14,12 +14,12 @@ from chatminer.chatparsers import (
 
 def get_args():
     try:
-        parser = argparse.ArgumentParser(
+        cliparser = argparse.ArgumentParser(
             description="chat-miner provides lean parsers for every major platform transforming chats into pandas dataframes.\
              Artistic visualizations allow you to explore your data and create artwork from your chats."
         )
 
-        parser.add_argument(
+        cliparser.add_argument(
             "-p",
             "--parser",
             type=str,
@@ -27,61 +27,48 @@ def get_args():
             choices=["whatsapp", "instagram", "facebook", "signal", "telegram"],
         )
 
-        parser.add_argument(
+        cliparser.add_argument(
             "-i", "--input", type=str, help="Input file to be processed"
         )
 
-        parser.add_argument(
+        cliparser.add_argument(
             "-o", "--output", type=str, help="Output file for the results"
         )
 
-        return parser.parse_args(), parser
-    except:
+        return cliparser.parse_args(), cliparser
+    except KeyboardInterrupt:
         sys.exit()
 
 
 def main():
     try:
-        args, parser = get_args()
+        args, cliparser = get_args()
 
-        parser_type = args.parser
-        INPUT_FILE = args.input
-        OUTPUT_FILE = args.output
-
-        if INPUT_FILE == None or OUTPUT_FILE == None or parser_type == None:
+        if args.input is None or args.output is None or args.parser is None:
             raise ValueError
 
-        if (parser_type).lower() == "whatsapp":
-            parser_type = WhatsAppParser(INPUT_FILE)
-            parser_type.parse_file()
-            output = parser_type.parsed_messages.get_df()
+        if (args.parser).lower() == "whatsapp":
+            chatparser = WhatsAppParser(args.input)
 
-        elif (parser_type).lower() == "facebook":
-            parser_type = FacebookMessengerParser(INPUT_FILE)
-            parser_type.parse_file()
-            output = parser_type.parsed_messages.get_df()
+        elif (args.parser).lower() == "facebook":
+            chatparser = FacebookMessengerParser(args.input)
+        elif (args.parser).lower() == "instagram":
+            chatparser = InstagramJsonParser(args.input)
+        elif (args.parser).lower() == "signal":
+            chatparser = SignalParser(args.input)
+        elif (args.parser).lower() == "telegram":
+            chatparser = TelegramJsonParser(args.input)
+        else:
+            raise ValueError
 
-        elif (parser_type).lower() == "instagram":
-            parser_type = InstagramJsonParser(INPUT_FILE)
-            parser_type.parse_file()
-            output = parser_type.parsed_messages.get_df()
-
-        elif (parser_type).lower() == "signal":
-            parser_type = SignalParser(INPUT_FILE)
-            parser_type.parse_file()
-            output = parser_type.parsed_messages.get_df()
-
-        elif (parser_type).lower() == "telegram":
-            parser_type = TelegramJsonParser(INPUT_FILE)
-            parser_type.parse_file()
-            output = parser_type.parsed_messages.get_df()
-
-        output.to_csv(OUTPUT_FILE, index=False)
+        chatparser.parse_file()
+        df = chatparser.parsed_messages.get_df()
+        df.to_csv(args.output, index=False)
 
     except ValueError:
-        parser.print_usage()
+        cliparser.print_usage()
 
-    except:
+    except KeyboardInterrupt:
         sys.exit()
 
 

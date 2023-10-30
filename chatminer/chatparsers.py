@@ -68,7 +68,7 @@ class Parser(ABC):
     def parse_file(self):
         self._logger.info("Starting reading raw messages...")
         self._read_raw_messages_from_file()
-        self._logger.info(f"Finished reading %i raw messages.", len(self._raw_messages))
+        self._logger.info("Finished reading %i raw messages.", len(self._raw_messages))
 
         self._logger.info("Starting parsing raw messages...")
         self._parse_raw_messages()
@@ -191,7 +191,7 @@ class FacebookMessengerParser(Parser):
         elif "content" in mess:
             body = mess["content"]
         else:
-            self._logger.warning(f"Skipped message with unknown format: %s", mess)
+            self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
         time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
@@ -233,7 +233,7 @@ class InstagramJsonParser(Parser):
         elif any(key == "is_unsent" for key in mess):
             return None
         else:
-            self._logger.warning(f"Skipped message with unknown format: %s", mess)
+            self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
         time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
