@@ -94,27 +94,24 @@ ax[1] = vis.radar(df, ax=ax[1], color='C1', alpha=0)
   <img src="examples/radar.svg">
 </p>
 
-## 5. NLP Package Usage
+## 5. Natural Language Processing
 
 ### 5.1 Add Sentiment 
 
 ```python
 from chatminer.nlp import add_sentiment
 
-df_with_sentiment = add_sentiment(df)
+df_sentiment = add_sentiment(df)
 ```
-### 5.2 Stacked Bar Chart:Sentiment per Day of the Week
+### 5.2 Example Plot: Sentiment per Author in Groupchat
 
 ```python
-grouped = df_with_sentiment.groupby(['weekday', 'sentiment']).size().unstack(fill_value=0)
-ax = grouped.plot(kind='bar', stacked=True, figsize=(10, 6), colormap=plt.cm.get_cmap('Set3'))
-ax.set(xlabel='Day of the Week', ylabel='Count', title='Sentiment per Day of the Week')
-ax.legend(title='Sentiment', loc='upper right')
-plt.show()
+df_grouped = df_sentiment.groupby(['author', 'sentiment']).size().unstack(fill_value=0)
+ax = df_grouped.plot(kind='bar', stacked=True, figsize=(8, 3))
 ```
 
 <p align="center">
-  <img src="examples/stacked_bar_chart.png">
+  <img src="examples/nlp.svg">
 </p>
 
 
