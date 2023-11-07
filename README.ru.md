@@ -6,7 +6,7 @@
 
 -----------------
 
-# chat-miner: turn your chats into artwork
+# chat-miner: Превратите свои чаты в искусство!
 
 [![PyPI Version](https://img.shields.io/pypi/v/chat-miner.svg)](https://pypi.org/project/chat-miner/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -15,36 +15,35 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 🌐
-**English**
-[Русский][RU]
+[English][EN]
+**Русский**
 
 [EN]:README.md
 [RU]:README.ru.md
 
 -----------------
 
-**chat-miner** provides lean parsers for every major platform transforming chats into pandas dataframes. Artistic visualizations allow you to explore your data and create artwork from your chats.
+**chat-miner** предоставляет эффективные парсеры для любой крупной платформы, представляющие чаты как pandas-датафреймы. Художественная визуализация позволяет вам исследовать данные ваших переписок и создавать из них произведения искусства.
 
 
-## 1. Installation
-Latest release including dependencies can be installed via PyPI:
+## 1. Установка
+Последний выпуск, включая зависимости, можно установить с помощью PyPI:
 ```sh
 pip install chat-miner
 ```
-
-If you're interested in contributing, running the latest source code, or just like to build everything yourself:
+Если вы заинтересованы в участии в проекте, запуске свежего исходного кода или просто любите все билдить сами:
 ```sh
 git clone https://github.com/joweich/chat-miner.git
 cd chat-miner
 pip install -r requirements.txt
 ```
 
-## 2. Exporting chat logs
-Have a look at the official tutorials for [WhatsApp](https://faq.whatsapp.com/1180414079177245/), [Signal](https://github.com/carderne/signal-export), [Telegram](https://telegram.org/blog/export-and-more), [Facebook Messenger](https://www.facebook.com/help/messenger-app/713635396288741), or [Instagram Chats](https://help.instagram.com/181231772500920) to learn how to export chat logs for your platform.
+## 2. Экспортирование чатов
+Ознакомьтесь с официальными руководствами для [WhatsApp](https://faq.whatsapp.com/1180414079177245/), [Signal](https://github.com/carderne/signal-export), [Telegram](https://telegram.org/blog/export-and-more), [Facebook Messenger](https://www.facebook.com/help/messenger-app/713635396288741) или [Instagram Chats](https://help.instagram.com/181231772500920), чтобы узнать, как экспортировать чаты для вашей платформы.
 
-## 3. Parsing
-Following code showcases the ``WhatsAppParser`` module.
-The usage of ``SignalParser``, ``TelegramJsonParser``, ``FacebookMessengerParser``, and ``InstagramJsonParser`` follows the same pattern.
+## 3. Парсинг
+Код ниже показывает работу модуля ``WhatsAppParser``.
+``SignalParser``, ``TelegramJsonParser``, ``FacebookMessengerParser`` и ``InstagramJsonParser`` используются тем же образом.
 ```python
 from chatminer.chatparsers import WhatsAppParser
 
@@ -52,8 +51,8 @@ parser = WhatsAppParser(FILEPATH)
 parser.parse_file()
 df = parser.parsed_messages.get_df()
 ```
-**Note:**
-Depending on your source system, Python requires to convert the filepath to a raw string.
+**Внимание:**
+В зависимости от вашей ОС, python может требовать конвертирования пути к файлу в "сырую" строку.
 ```python
 import os
 FILEPATH = r"C:\Users\Username\chat.txt" # Windows
@@ -62,12 +61,12 @@ assert os.path.isfile(FILEPATH)
 
 ```
 
-## 4. Visualizing
+## 4. Визуализация
 ```python
 import chatminer.visualizations as vis
 import matplotlib.pyplot as plt
 ```
-### 4.1 Heatmap: Message count per day
+### 4.1 Тепловая карта: Количество сообщений в день
 ```python
 fig, ax = plt.subplots(2, 1, figsize=(9, 3))
 ax[0] = vis.calendar_heatmap(df, year=2020, cmap='Oranges', ax=ax[0])
@@ -78,7 +77,7 @@ ax[1] = vis.calendar_heatmap(df, year=2021, linewidth=0, monthly_border=True, ax
   <img src="examples/heatmap.svg">
 </p>
 
-### 4.2 Sunburst: Message count per daytime
+### 4.2 Sunburst-диаграмма: Количество сообщений по времени суток
 ```python
 fig, ax = plt.subplots(1, 2, figsize=(7, 3), subplot_kw={'projection': 'polar'})
 ax[0] = vis.sunburst(df, highlight_max=True, isolines=[2500, 5000], isolines_relative=False, ax=ax[0])
@@ -89,7 +88,7 @@ ax[1] = vis.sunburst(df, highlight_max=False, isolines=[0.5, 1], color='C1', ax=
   <img src="examples/sunburst.svg">
 </p>
 
-### 4.3 Wordcloud: Word frequencies
+### 4.3 Облако слов: Частота слов
 ```python
 fig, ax = plt.subplots(figsize=(8, 3))
 stopwords = ['these', 'are', 'stopwords']
@@ -100,7 +99,7 @@ ax = vis.wordcloud(df, ax=ax, stopwords=stopwords, **kwargs)
   <img src="examples/wordcloud.svg">
 </p>
 
-### 4.4 Radarchart: Message count per weekday
+### 4.4 Радарная диаграмма: Количество сообщений по дням недели
 ```python
 if not vis.is_radar_registered():
 	vis.radar_factory(7, frame="polygon")
@@ -112,16 +111,16 @@ ax[1] = vis.radar(df, ax=ax[1], color='C1', alpha=0)
   <img src="examples/radar.svg">
 </p>
 
-## 5. Natural Language Processing
+## 5. Обработка естесственного языка
 
-### 5.1 Add Sentiment 
+### 5.1 Добавьте настрой
 
 ```python
 from chatminer.nlp import add_sentiment
 
 df_sentiment = add_sentiment(df)
 ```
-### 5.2 Example Plot: Sentiment per Author in Groupchat
+### 5.2 Пример диаграммы: Настрой каждого автора в групповом чате
 
 ```python
 df_grouped = df_sentiment.groupby(['author', 'sentiment']).size().unstack(fill_value=0)
@@ -133,16 +132,16 @@ ax = df_grouped.plot(kind='bar', stacked=True, figsize=(8, 3))
 </p>
 
 
-## 6. Command Line Interface
-The CLI supports parsing chat logs into csv files.
-As of now, you **can't** create visualizations from the CLI directly.
+## 6. Интерфейс коммандной строки
+Через коммандную строку поддерживается парс чатов в csv-файлы.
+На данный момент, напрямую через коммандную строку создавать визуализации **нельзя!**
 
-Example usage:
+Пример использования:
 ```bash
 $ chatminer -p whatsapp -i exportfile.txt -o output.csv
 ```
 
-Usage guide:
+Руководство к использованию:
 ```
 usage: chatminer [-h] [-p {whatsapp,instagram,facebook,signal,telegram}] [-i INPUT] [-o OUTPUT]
 
