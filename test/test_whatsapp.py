@@ -35,5 +35,9 @@ def test_dateformat5():
     assert_equal_from_file("dateformat5")
 
 
+def test_dateformat6():
+    assert_equal_from_file("dateformat6")
+
+
 def test_unicode():
     assert_equal_from_file("unicode")

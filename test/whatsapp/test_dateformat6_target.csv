@@ -1,0 +1,5 @@
+timestamp,author,message,weekday,hour,words,letters
+2021-10-24 15:21:48,Jahn Doe,"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero.",Sunday,15,10,69
+2021-10-23 15:21:47,John-John Doe,Lorem ipsum : dolor sit amet.,Saturday,15,6,29
+2021-10-22 15:21:46,John Doe,Lorem ipsum dolor sit amet.,Friday,15,5,27
+2021-10-21 15:21:45,John Doe,Lorem ipsum dolor sit amet.,Thursday,15,5,27
