@@ -19,7 +19,7 @@ def test_telegram_single_export():
 
 
 def test_telegram_batch_export():
-    parser = TelegramJsonParser("test/telegram/test_single_export.json", "Chatname")
+    parser = TelegramJsonParser("test/telegram/test_batch_export.json", "Chatname")
     parser.parse_file()
     df_res = parser.parsed_messages.get_df()
     df_test = pd.read_csv(
