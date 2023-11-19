@@ -1,0 +1,25 @@
+{
+    "messages": [
+     {
+      "type": "message",
+      "date_unixtime": "1544006350",
+      "from": "Author 1",
+      "text": "Minimal Message"
+     },
+     {
+      "type": "message",
+      "date_unixtime": "1544006964",
+      "from": "Author 2",
+      "text": [
+        {
+         "type": "bold",
+         "text": "Link:"
+        },
+        {
+        "type": "link",
+        "text": "https://telegram.org/"
+        }
+       ]
+     }
+    ]
+}
