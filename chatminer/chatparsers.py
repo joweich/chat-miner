@@ -35,10 +35,7 @@ class ParsedMessageCollection:
         self._parsed_messages.append(mess)
 
     def get_df(self):
-        messages_as_dict: List[Dict[str, Any]] = []
-        for mess in self._parsed_messages:
-            messages_as_dict.append(asdict(mess))
-
+        messages_as_dict = [asdict(mess) for mess in self._parsed_messages]
         df = pd.DataFrame(messages_as_dict)
         df["weekday"] = df["timestamp"].dt.day_name()
         df["hour"] = df["timestamp"].dt.hour
