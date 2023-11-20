@@ -46,6 +46,21 @@ class ParsedMessageCollection:
         df["letters"] = df["message"].apply(len)
         return df
 
+    def write_to_json(self, file: str):
+        def serialize_message(mess: ParsedMessage):
+            return {
+                "timestamp": mess.timestamp.isoformat(),
+                "author": mess.author,
+                "message": mess.message,
+            }
+
+        with open(file, "w") as json_file:
+            json.dump(
+                [serialize_message(mess) for mess in self._parsed_messages],
+                json_file,
+                indent=4,
+            )
+
 
 class Parser(ABC):
     def __init__(self, filepath: str):
