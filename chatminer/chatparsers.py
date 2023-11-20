@@ -61,6 +61,18 @@ class ParsedMessageCollection:
                 indent=4,
             )
 
+    def read_from_json(self, file: str):
+        def deserialize_message(mess: dict):
+            timestamp = dt.datetime.fromisoformat(mess["timestamp"])
+            author = mess["author"]
+            message = mess["message"]
+            return ParsedMessage(timestamp=timestamp, author=author, message=message)
+
+        with open(file, "r") as json_file:
+            self._parsed_messages = [
+                deserialize_message(mess) for mess in json.load(json_file)
+            ]
+
 
 class Parser(ABC):
     def __init__(self, filepath: str):
