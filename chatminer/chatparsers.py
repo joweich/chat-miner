@@ -70,6 +70,9 @@ class ParsedMessageCollection:
                 deserialize_message(mess) for mess in json.load(json_file)
             ]
 
+    def __eq__(self, other):
+        return self._parsed_messages == other._parsed_messages
+
 
 class Parser(ABC):
     def __init__(self, filepath: str):
