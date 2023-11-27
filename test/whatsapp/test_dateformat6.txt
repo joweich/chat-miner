@@ -1,6 +1,0 @@
-21/10/21, 15:21:45 - John Doe: Lorem ipsum dolor sit amet.
-22/10/21, 15:21:46 - John Doe: Lorem ipsum dolor sit amet.
-
-23/10/21, 15:21:47 - John-John Doe: Lorem ipsum : dolor sit amet.
-24/10/21, 15:21:48 - Jahn Doe: Lorem ipsum dolor sit amet,
-consectetur adipiscing elit. Duis libero.

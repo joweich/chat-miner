@@ -1,0 +1,47 @@
+[
+    {
+        "timestamp": "2021-12-30T22:01:00",
+        "author": "John Doe",
+        "message": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero."
+    },
+    {
+        "timestamp": "2021-12-20T12:10:00",
+        "author": "🤓",
+        "message": "Lorem ipsum 🤓"
+    },
+    {
+        "timestamp": "2021-12-10T10:10:00",
+        "author": "John Doe 🤓",
+        "message": "Lorem ipsum 🤓"
+    },
+    {
+        "timestamp": "2020-06-30T09:10:00",
+        "author": "System",
+        "message": "You were added"
+    },
+    {
+        "timestamp": "2020-06-20T00:08:00",
+        "author": "System",
+        "message": "+12 345 578 created group \"Groupname\""
+    },
+    {
+        "timestamp": "2020-06-10T15:55:00",
+        "author": "John-John Doe",
+        "message": "Lorem ipsum : dolor sit amet."
+    },
+    {
+        "timestamp": "2019-01-30T20:49:00",
+        "author": "Jahn Doe",
+        "message": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero."
+    },
+    {
+        "timestamp": "2019-01-20T11:23:00",
+        "author": "John Doe",
+        "message": "<Disappearing Message>"
+    },
+    {
+        "timestamp": "2019-01-01T11:25:00",
+        "author": "John Doe",
+        "message": "Lorem ipsum dolor sit amet."
+    }
+]
