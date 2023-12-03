@@ -136,7 +136,8 @@ class SignalParser(Parser):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
-                    self._raw_messages.append(" ".join(buffer))
+                    joined_buffer = " ".join(buffer)
+                    self._raw_messages.append("".join(joined_buffer.splitlines()))
                     buffer.clear()
                 else:
                     self._raw_messages.append(line)
