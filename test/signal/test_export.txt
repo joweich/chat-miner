@@ -1,2 +1,2 @@
-[2019-05-29, 15:04] Author 1: Message 1
-[2019-05-29, 15:10] Author 2: Message 2
+[2019-12-24, 12:23] Jane Doe: Hello John!
+[2020-01-17, 21:49] John Doe: Hello Jane!

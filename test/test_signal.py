@@ -1,15 +1,9 @@
-import pandas as pd
-from pandas.testing import assert_frame_equal
-
-from chatminer.chatparsers import SignalParser
+from chatminer.chatparsers import ParsedMessageCollection, SignalParser
 
 
 def test_signal():
+    target = ParsedMessageCollection()
+    target.read_from_json("test/signal/target.json")
     parser = SignalParser("test/signal/test_export.txt")
     parser.parse_file()
-    df_res = parser.parsed_messages.get_df()
-    df_test = pd.read_csv(
-        "test/signal/test_target.csv",
-        parse_dates=["timestamp"],
-    )
-    assert_frame_equal(df_test, df_res, check_dtype=False)
+    assert parser.parsed_messages == target
