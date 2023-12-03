@@ -1,0 +1,12 @@
+[
+    {
+        "timestamp": "2018-12-05T11:39:10",
+        "author": "Author 1",
+        "message": "Minimal Message"
+    },
+    {
+        "timestamp": "2018-12-05T11:49:24",
+        "author": "Author 2",
+        "message": "Link: https://telegram.org/"
+    }
+]
