@@ -394,12 +394,8 @@ class WhatsAppDateFormat:
         end = "]" if self.has_brackets else ""
         if self.is_yearfirst:
             date1 = "year"
-            if self.is_dayfirst:
-                date2 = "day"
-                date3 = "month"
-            else:
-                date2 = "month"
-                date3 = "day"
+            date2 = "month"
+            date3 = "day"
         elif self.is_dayfirst:
             date1 = "day"
             date2 = "month"
