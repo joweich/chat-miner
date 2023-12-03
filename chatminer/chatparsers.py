@@ -221,7 +221,7 @@ class FacebookMessengerParser(Parser):
             self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
-        time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
+        time = dt.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
         body = body.encode("latin-1").decode("utf-8")
         return ParsedMessage(time, author, body)
@@ -263,7 +263,7 @@ class InstagramJsonParser(Parser):
             self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
-        time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
+        time = dt.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
         body = body.encode("latin-1").decode("utf-8")
         return ParsedMessage(time, author, body)
@@ -313,7 +313,7 @@ class TelegramJsonParser(Parser):
             else:
                 raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
 
-            time = dt.datetime.fromtimestamp(int(mess["date_unixtime"]))
+            time = dt.datetime.utcfromtimestamp(int(mess["date_unixtime"]))
             author = mess["from"]
             return ParsedMessage(time, author, body)
         return None
