@@ -1,0 +1,11 @@
+01/01/2019, 11:25 a. m. - John Doe: Lorem ipsum dolor sit amet.
+01/20/2019, 11:23 a. m. - John Doe:.
+01/30/2019, 08:49 p. m. - Jahn Doe: Lorem ipsum dolor sit amet,
+consectetur adipiscing elit. Duis libero.
+06/10/2020, 03:55 p. m. - John-John Doe: Lorem ipsum : dolor sit amet.
+06/20/2020, 00:08 a. m. - +12 345 578 created group "Groupname"
+06/30/2020, 09:10 a. m. - You were added
+12/10/2021, 10:10 a. m. - John Doe 🤓: Lorem ipsum 🤓
+12/20/2021, 12:10 p. m. - 🤓: Lorem ipsum 🤓
+12/30/2021, 10:01 p. m. - John Doe: Lorem ipsum dolor sit amet,
+consectetur adipiscing elit. Duis libero.

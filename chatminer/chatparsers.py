@@ -120,7 +120,7 @@ class Parser(ABC):
 class SignalParser(Parser):
     def _read_raw_messages_from_file(self):
         def _is_new_message(line: str):
-            regex = r"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]"
+            regex = r"^\[\d{4}-\d{2}-\d{2}, \d{2}:\d{2}\]"
             return re.match(regex, line)
 
         with self._file.open(encoding="utf-8") as f:
@@ -136,7 +136,8 @@ class SignalParser(Parser):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
-                    self._raw_messages.append(" ".join(buffer))
+                    joined_buffer = " ".join(buffer)
+                    self._raw_messages.append("".join(joined_buffer.splitlines()))
                     buffer.clear()
                 else:
                     self._raw_messages.append(line)
@@ -221,7 +222,7 @@ class FacebookMessengerParser(Parser):
             self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
-        time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
+        time = dt.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
         body = body.encode("latin-1").decode("utf-8")
         return ParsedMessage(time, author, body)
@@ -263,7 +264,7 @@ class InstagramJsonParser(Parser):
             self._logger.warning("Skipped message with unknown format: %s", mess)
             return None
 
-        time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
+        time = dt.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
         body = body.encode("latin-1").decode("utf-8")
         return ParsedMessage(time, author, body)
@@ -313,7 +314,7 @@ class TelegramJsonParser(Parser):
             else:
                 raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
 
-            time = dt.datetime.fromtimestamp(int(mess["date_unixtime"]))
+            time = dt.datetime.utcfromtimestamp(int(mess["date_unixtime"]))
             author = mess["from"]
             return ParsedMessage(time, author, body)
         return None
@@ -393,12 +394,8 @@ class WhatsAppDateFormat:
         end = "]" if self.has_brackets else ""
         if self.is_yearfirst:
             date1 = "year"
-            if self.is_dayfirst:
-                date2 = "day"
-                date3 = "month"
-            else:
-                date2 = "month"
-                date3 = "day"
+            date2 = "month"
+            date3 = "day"
         elif self.is_dayfirst:
             date1 = "day"
             date2 = "month"

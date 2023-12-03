@@ -1,39 +1,30 @@
-import pandas as pd
-from pandas.testing import assert_frame_equal
-
-from chatminer.chatparsers import WhatsAppParser
+from chatminer.chatparsers import ParsedMessageCollection, WhatsAppParser
 
 
-def assert_equal_from_file(file):
-    parser = WhatsAppParser(f"test/whatsapp/test_{file}.txt")
+def is_equal_to_target(sourcefile):
+    targetfile = "test/whatsapp/target.json"
+    target = ParsedMessageCollection()
+    target.read_from_json(targetfile)
+    parser = WhatsAppParser(sourcefile)
     parser.parse_file()
-    df_res = parser.parsed_messages.get_df()
-    df_test = pd.read_csv(
-        f"test/whatsapp/test_{file}_target.csv",
-        parse_dates=["timestamp"],
-    )
-    assert_frame_equal(df_test, df_res, check_dtype=False)
+    return parser.parsed_messages == target
 
 
-def test_dateformat1():
-    assert_equal_from_file("dateformat1")
+def test_mmddyy_24hrs():
+    assert is_equal_to_target("test/whatsapp/test_mmddyy_24hrs.txt")
 
 
-def test_dateformat2():
-    assert_equal_from_file("dateformat2")
+def test_ddmmyy_24hrs():
+    assert is_equal_to_target("test/whatsapp/test_ddmmyy_24hrs.txt")
 
 
-def test_dateformat3():
-    assert_equal_from_file("dateformat3")
+def test_mmddyyyy_12hrs():
+    assert is_equal_to_target("test/whatsapp/test_mmddyyyy_12hrs.txt")
 
 
-def test_dateformat4():
-    assert_equal_from_file("dateformat4")
+def test_yyyymmdd_24hrs():
+    assert is_equal_to_target("test/whatsapp/test_yyyymmdd_24hrs.txt")
 
 
-def test_dateformat5():
-    assert_equal_from_file("dateformat5")
-
-
-def test_unicode():
-    assert_equal_from_file("unicode")
+def test_mmddyy_brackets_24hrs():
+    assert is_equal_to_target("test/whatsapp/test_[mmddyy]_24hrs.txt")
