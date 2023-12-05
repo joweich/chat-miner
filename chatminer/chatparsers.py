@@ -196,13 +196,12 @@ class WhatsAppParser(Parser):
 
         if ": " in author_and_body:
             author, body = [x.strip() for x in author_and_body.split(": ", 1)]
+            return ParsedMessage(time, author, body)
         elif ":." in author_and_body:
-            author = [x.strip() for x in author_and_body.split(":.", 1)][0]
-            body = "<Disappearing Message>"
+            self._logger.info(f"Ignoring self-destroying message on {time}.")
         else:
-            author = "System"
             body = author_and_body.strip()
-        return ParsedMessage(time, author, body)
+            self._logger.info(f"Ignoring sytem message on {time}: {body}.")
 
 
 class FacebookMessengerParser(Parser):
