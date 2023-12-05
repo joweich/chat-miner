@@ -280,44 +280,33 @@ class TelegramJsonParser(Parser):
             json_objects = json.load(f)
 
         if "messages" in json_objects:
+            self._logger.info("Detected single chat export.")
             self._raw_messages = json_objects["messages"]
         else:
+            self._logger.info("Detected batch export.")
             if self.chat_name:
-                self._logger.info("Searching for chat %s...", self.chat_name)
                 for chat in json_objects["chats"]["list"]:
                     if "name" in chat and chat["name"] == self.chat_name:
                         self._raw_messages = chat["messages"]
                         break
             else:
-                self._logger.info(
-                    'No chat name was specified, searching for chat "Saved Messages"...'
-                )
-                for chat in json_objects["chats"]["list"]:
-                    if chat["type"] == "saved_messages":
-                        self._raw_messages = chat["messages"]
-                        break
-        if not self._raw_messages:
-            self._logger.error(
-                "Chat %s was not found.",
-                self.chat_name if self.chat_name else "Saved Messages",
-            )
+                raise ValueError(f"{self.chat_name} not found in {self._file}")
 
     def _parse_message(self, mess: Dict[str, Any]):
-        if "from" in mess and "text" in mess:
-            if isinstance(mess["text"], str):
-                body = mess["text"]
-            elif isinstance(mess["text"], list):
-                text_elements = [
-                    m["text"] if isinstance(m, dict) else m for m in mess["text"]
-                ]
-                body = " ".join(text_elements)
-            else:
-                raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
+        if "from" not in mess or "text" not in mess:
+            return None
 
-            time = dt.datetime.utcfromtimestamp(int(mess["date_unixtime"]))
-            author = mess["from"]
-            return ParsedMessage(time, author, body)
-        return None
+        if isinstance(mess["text"], str):
+            body = mess["text"]
+        elif isinstance(mess["text"], list):
+            text_elements = [
+                m["text"] if isinstance(m, dict) else m for m in mess["text"]
+            ]
+            body = " ".join(text_elements)
+
+        time = dt.datetime.utcfromtimestamp(int(mess["date_unixtime"]))
+        author = mess["from"]
+        return ParsedMessage(time, author, body)
 
 
 class WhatsAppDateFormat:
