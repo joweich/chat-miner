@@ -1,0 +1,12 @@
+[
+    {
+        "timestamp": "2020-01-17T20:49:00",
+        "author": "John Doe",
+        "message": "Hello Jane!"
+    },
+    {
+        "timestamp": "2019-12-24T11:23:00",
+        "author": "Jane Doe",
+        "message": "Hello John!"
+    }
+]

@@ -35,16 +35,43 @@ class ParsedMessageCollection:
         self._parsed_messages.append(mess)
 
     def get_df(self):
-        messages_as_dict: List[Dict[str, Any]] = []
-        for mess in self._parsed_messages:
-            messages_as_dict.append(asdict(mess))
-
+        messages_as_dict = [asdict(mess) for mess in self._parsed_messages]
         df = pd.DataFrame(messages_as_dict)
         df["weekday"] = df["timestamp"].dt.day_name()
         df["hour"] = df["timestamp"].dt.hour
         df["words"] = df["message"].apply(lambda s: len(s.split(" ")))
         df["letters"] = df["message"].apply(len)
         return df
+
+    def write_to_json(self, file: str):
+        def serialize_message(mess: ParsedMessage):
+            return {
+                "timestamp": mess.timestamp.isoformat(),
+                "author": mess.author,
+                "message": mess.message,
+            }
+
+        with open(file, "w") as json_file:
+            json.dump(
+                [serialize_message(mess) for mess in self._parsed_messages],
+                json_file,
+                indent=4,
+            )
+
+    def read_from_json(self, file: str):
+        def deserialize_message(mess: dict):
+            timestamp = dt.datetime.fromisoformat(mess["timestamp"])
+            author = mess["author"]
+            message = mess["message"]
+            return ParsedMessage(timestamp=timestamp, author=author, message=message)
+
+        with open(file, "r") as json_file:
+            self._parsed_messages = [
+                deserialize_message(mess) for mess in json.load(json_file)
+            ]
+
+    def __eq__(self, other):
+        return self._parsed_messages == other._parsed_messages
 
 
 class Parser(ABC):
@@ -68,7 +95,7 @@ class Parser(ABC):
     def parse_file(self):
         self._logger.info("Starting reading raw messages...")
         self._read_raw_messages_from_file()
-        self._logger.info(f"Finished reading %i raw messages.", len(self._raw_messages))
+        self._logger.info("Finished reading %i raw messages.", len(self._raw_messages))
 
         self._logger.info("Starting parsing raw messages...")
         self._parse_raw_messages()
@@ -93,7 +120,7 @@ class Parser(ABC):
 class SignalParser(Parser):
     def _read_raw_messages_from_file(self):
         def _is_new_message(line: str):
-            regex = r"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}\]"
+            regex = r"^\[\d{4}-\d{2}-\d{2}, \d{2}:\d{2}\]"
             return re.match(regex, line)
 
         with self._file.open(encoding="utf-8") as f:
@@ -109,7 +136,8 @@ class SignalParser(Parser):
                 if buffer:
                     buffer.append(line)
                     buffer.reverse()
-                    self._raw_messages.append(" ".join(buffer))
+                    joined_buffer = " ".join(buffer)
+                    self._raw_messages.append("".join(joined_buffer.splitlines()))
                     buffer.clear()
                 else:
                     self._raw_messages.append(line)
@@ -168,13 +196,12 @@ class WhatsAppParser(Parser):
 
         if ": " in author_and_body:
             author, body = [x.strip() for x in author_and_body.split(": ", 1)]
+            return ParsedMessage(time, author, body)
         elif ":." in author_and_body:
-            author = [x.strip() for x in author_and_body.split(":.", 1)][0]
-            body = "<Disappearing Message>"
+            self._logger.info(f"Ignoring self-destroying message on {time}.")
         else:
-            author = "System"
             body = author_and_body.strip()
-        return ParsedMessage(time, author, body)
+            self._logger.info(f"Ignoring sytem message on {time}: {body}.")
 
 
 class FacebookMessengerParser(Parser):
@@ -183,18 +210,12 @@ class FacebookMessengerParser(Parser):
             self._raw_messages: List[Dict[str, Any]] = json.load(f)["messages"]
 
     def _parse_message(self, mess: Dict[str, Any]):
-        body: str
-        if "type" in mess and mess["type"] == "Share":
-            body = mess["share"]["link"]
-        elif "sticker" in mess:
-            body = mess["sticker"]["uri"]
-        elif "content" in mess:
-            body = mess["content"]
-        else:
-            self._logger.warning(f"Skipped message with unknown format: %s", mess)
+        if "content" not in mess:
             return None
 
-        time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
+        body = mess["content"]
+
+        time = dt.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
         body = body.encode("latin-1").decode("utf-8")
         return ParsedMessage(time, author, body)
@@ -206,37 +227,24 @@ class InstagramJsonParser(Parser):
             self._raw_messages: List[Dict[str, Any]] = json.load(f)["messages"]
 
     def _parse_message(self, mess: Dict[str, Any]):
-        if "share" in mess:
-            body = "sentshare"
-        elif "photos" in mess:
-            body = "sentphoto"
-        elif "videos" in mess:
-            body = "sentvideo"
-        elif "audio_files" in mess:
-            body = "sentaudio"
-        elif "content" in mess:
-            if any(
-                flag in mess["content"]
-                for flag in (
-                    " to your message",
-                    " in the poll.",
-                    " created a poll: ",
-                    " liked a message",
-                    "This poll is no longer available.",
-                    "'s poll has multiple updates.",
-                )
-            ):
-                return None
-            body = mess["content"]
-        elif all(key in ("sender_name", "timestamp_ms", "reactions") for key in mess):
-            body = "disappearingmessage"
-        elif any(key == "is_unsent" for key in mess):
-            return None
-        else:
-            self._logger.warning(f"Skipped message with unknown format: %s", mess)
+        if "content" not in mess:
             return None
 
-        time = dt.datetime.fromtimestamp(mess["timestamp_ms"] / 1000)
+        system_messages = [
+            "to your message",
+            "in the poll.",
+            "created a poll: ",
+            "liked a message",
+            "This poll is no longer available.",
+            "'s poll has multiple updates.",
+        ]
+
+        if any(flag in mess["content"] for flag in system_messages):
+            return None
+
+        body = mess["content"]
+
+        time = dt.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
         body = body.encode("latin-1").decode("utf-8")
         return ParsedMessage(time, author, body)
@@ -252,44 +260,33 @@ class TelegramJsonParser(Parser):
             json_objects = json.load(f)
 
         if "messages" in json_objects:
+            self._logger.info("Detected single chat export.")
             self._raw_messages = json_objects["messages"]
         else:
+            self._logger.info("Detected batch export.")
             if self.chat_name:
-                self._logger.info("Searching for chat %s...", self.chat_name)
                 for chat in json_objects["chats"]["list"]:
                     if "name" in chat and chat["name"] == self.chat_name:
                         self._raw_messages = chat["messages"]
                         break
             else:
-                self._logger.info(
-                    'No chat name was specified, searching for chat "Saved Messages"...'
-                )
-                for chat in json_objects["chats"]["list"]:
-                    if chat["type"] == "saved_messages":
-                        self._raw_messages = chat["messages"]
-                        break
-        if not self._raw_messages:
-            self._logger.error(
-                "Chat %s was not found.",
-                self.chat_name if self.chat_name else "Saved Messages",
-            )
+                raise ValueError(f"{self.chat_name} not found in {self._file}")
 
     def _parse_message(self, mess: Dict[str, Any]):
-        if "from" in mess and "text" in mess:
-            if isinstance(mess["text"], str):
-                body = mess["text"]
-            elif isinstance(mess["text"], list):
-                text_elements = [
-                    m["text"] if isinstance(m, dict) else m for m in mess["text"]
-                ]
-                body = " ".join(text_elements)
-            else:
-                raise ValueError(f"Unable to parse type {type(mess['text'])} in {mess}")
+        if "from" not in mess or "text" not in mess:
+            return None
 
-            time = dt.datetime.fromtimestamp(int(mess["date_unixtime"]))
-            author = mess["from"]
-            return ParsedMessage(time, author, body)
-        return None
+        if isinstance(mess["text"], str):
+            body = mess["text"]
+        elif isinstance(mess["text"], list):
+            text_elements = [
+                m["text"] if isinstance(m, dict) else m for m in mess["text"]
+            ]
+            body = " ".join(text_elements)
+
+        time = dt.datetime.utcfromtimestamp(int(mess["date_unixtime"]))
+        author = mess["from"]
+        return ParsedMessage(time, author, body)
 
 
 class WhatsAppDateFormat:
@@ -366,12 +363,8 @@ class WhatsAppDateFormat:
         end = "]" if self.has_brackets else ""
         if self.is_yearfirst:
             date1 = "year"
-            if self.is_dayfirst:
-                date2 = "day"
-                date3 = "month"
-            else:
-                date2 = "month"
-                date3 = "day"
+            date2 = "month"
+            date3 = "day"
         elif self.is_dayfirst:
             date1 = "day"
             date2 = "month"

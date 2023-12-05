@@ -1,5 +1,0 @@
-2022/12/14, 13:34. - John Doe: Lorem ipsum dolor sit amet.
-2022/12/24, 11:33. - John Doe: Lorem ipsum : dolor sit amet.
-2022/12/24, 11:35. - John-John Doe: Lorem ipsum : dolor sit amet.
-2022/12/21, 17:02. - Jahn Doe: Lorem ipsum dolor sit amet,
-consectetur adipiscing elit. Duis libero.

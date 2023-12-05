@@ -1,0 +1,32 @@
+[
+    {
+        "timestamp": "2021-12-30T22:01:00",
+        "author": "John Doe",
+        "message": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero."
+    },
+    {
+        "timestamp": "2021-12-20T12:10:00",
+        "author": "🤓",
+        "message": "Lorem ipsum 🤓"
+    },
+    {
+        "timestamp": "2021-12-10T10:10:00",
+        "author": "John Doe 🤓",
+        "message": "Lorem ipsum 🤓"
+    },
+    {
+        "timestamp": "2020-06-10T15:55:00",
+        "author": "John-John Doe",
+        "message": "Lorem ipsum : dolor sit amet."
+    },
+    {
+        "timestamp": "2019-01-30T20:49:00",
+        "author": "Jahn Doe",
+        "message": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis libero."
+    },
+    {
+        "timestamp": "2019-01-01T11:25:00",
+        "author": "John Doe",
+        "message": "Lorem ipsum dolor sit amet."
+    }
+]

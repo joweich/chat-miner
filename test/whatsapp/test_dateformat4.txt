@@ -1,5 +1,0 @@
-[09/10/22 11:37:00 p.m.] John Doe: Lorem ipsum dolor sit amet.
-[10/10/22 12:37:00 p.m.] John Doe: Lorem ipsum dolor sit amet.
-[11/10/22 13:37:00 p.m.] John-John Doe: Lorem ipsum : dolor sit amet.
-[12/10/22 14:37:00 p.m.] Jahn Doe: Lorem ipsum dolor sit amet,
-consectetur adipiscing elit. Duis libero.
