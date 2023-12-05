@@ -211,16 +211,10 @@ class FacebookMessengerParser(Parser):
             self._raw_messages: List[Dict[str, Any]] = json.load(f)["messages"]
 
     def _parse_message(self, mess: Dict[str, Any]):
-        body: str
-        if "type" in mess and mess["type"] == "Share":
-            body = mess["share"]["link"]
-        elif "sticker" in mess:
-            body = mess["sticker"]["uri"]
-        elif "content" in mess:
-            body = mess["content"]
-        else:
-            self._logger.warning("Skipped message with unknown format: %s", mess)
+        if "content" not in mess:
             return None
+
+        body = mess["content"]
 
         time = dt.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
