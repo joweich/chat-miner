@@ -234,35 +234,22 @@ class InstagramJsonParser(Parser):
             self._raw_messages: List[Dict[str, Any]] = json.load(f)["messages"]
 
     def _parse_message(self, mess: Dict[str, Any]):
-        if "share" in mess:
-            body = "sentshare"
-        elif "photos" in mess:
-            body = "sentphoto"
-        elif "videos" in mess:
-            body = "sentvideo"
-        elif "audio_files" in mess:
-            body = "sentaudio"
-        elif "content" in mess:
-            if any(
-                flag in mess["content"]
-                for flag in (
-                    " to your message",
-                    " in the poll.",
-                    " created a poll: ",
-                    " liked a message",
-                    "This poll is no longer available.",
-                    "'s poll has multiple updates.",
-                )
-            ):
-                return None
-            body = mess["content"]
-        elif all(key in ("sender_name", "timestamp_ms", "reactions") for key in mess):
-            body = "disappearingmessage"
-        elif any(key == "is_unsent" for key in mess):
+        if "content" not in mess:
             return None
-        else:
-            self._logger.warning("Skipped message with unknown format: %s", mess)
+
+        system_messages = [
+            "to your message",
+            "in the poll.",
+            "created a poll: ",
+            "liked a message",
+            "This poll is no longer available.",
+            "'s poll has multiple updates.",
+        ]
+
+        if any(flag in mess["content"] for flag in system_messages):
             return None
+
+        body = mess["content"]
 
         time = dt.datetime.utcfromtimestamp(mess["timestamp_ms"] / 1000)
         author = mess["sender_name"].encode("latin-1").decode("utf-8")
