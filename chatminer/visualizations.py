@@ -276,29 +276,32 @@ def radar(
     authors=None,
 ) -> plt.Axes:
     if authors:
-        df = df[df["author"].isin(authors)]
+        df = df.filter(pl.col("author").is_in(authors))
 
-    cats = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-    ]
-
-    df["weekday"] = df["timestamp"].dt.day_name()
-    df_radar = df.groupby(by="weekday")["message"].count().reindex(cats)
-
-    theta = radar_factory(7, frame="polygon")
+    df = df.with_columns(weekday=pl.col("timestamp").dt.weekday())
+    df_radar = (
+        df.group_by("weekday")
+        .agg(pl.col("message").count().alias("message_count"))
+        .sort("weekday")
+    )
 
     if ax is None:
         _, ax = plt.subplots(subplot_kw={"projection": "radar"})
 
-    ax.plot(theta, df_radar.values, color=color)
-    ax.fill(theta, df_radar.values, facecolor=color, alpha=alpha)
-    ax.set_varlabels(cats)
+    theta = radar_factory(7, frame="polygon")
+    ax.plot(theta, df_radar["message_count"], color=color)
+    ax.fill(theta, df_radar["message_count"], facecolor=color, alpha=alpha)
+    ax.set_varlabels(
+        [
+            "MON",
+            "TUE",
+            "WED",
+            "THU",
+            "FRI",
+            "SAT",
+            "SUN",
+        ]
+    )
     return ax
 
 
