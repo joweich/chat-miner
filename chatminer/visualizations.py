@@ -107,9 +107,9 @@ def wordcloud(
     **kwargs,
 ) -> plt.Axes:
     if authors:
-        df = df[df["author"].isin(authors)]
+        df = df.filter(pl.col("author").is_in(authors))
 
-    messages = [mess.split() for mess in df["message"].values]
+    messages = [mess.split() for mess in df["message"]]
     words = [word.lower() for sublist in messages for word in sublist]
 
     if stopwords:
