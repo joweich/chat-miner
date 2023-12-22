@@ -37,10 +37,6 @@ class ParsedMessageCollection:
     def get_df(self):
         messages_as_dict = [asdict(mess) for mess in self._parsed_messages]
         df = pd.DataFrame(messages_as_dict)
-        df["weekday"] = df["timestamp"].dt.day_name()
-        df["hour"] = df["timestamp"].dt.hour
-        df["words"] = df["message"].apply(lambda s: len(s.split(" ")))
-        df["letters"] = df["message"].apply(len)
         return df
 
     def write_to_json(self, file: str):

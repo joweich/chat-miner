@@ -30,6 +30,7 @@ def sunburst(
     if authors:
         df = df[df["author"].isin(authors)]
 
+    df["hour"] = df["timestamp"].dt.hour
     df_circle = df.groupby(by="hour")["message"].count().reset_index()
 
     hourly_count = np.zeros(24)
@@ -286,6 +287,8 @@ def radar(
         "Saturday",
         "Sunday",
     ]
+
+    df["weekday"] = df["timestamp"].dt.day_name()
     df_radar = df.groupby(by="weekday")["message"].count().reindex(cats)
 
     theta = radar_factory(7, frame="polygon")
