@@ -4,6 +4,7 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import polars as pl
 from dateutil.relativedelta import relativedelta
 from matplotlib.colors import ColorConverter, ListedColormap
 from matplotlib.patches import Circle, Polygon, RegularPolygon
@@ -17,7 +18,7 @@ from wordcloud import STOPWORDS, WordCloud
 
 
 def sunburst(
-    df: pd.DataFrame,
+    df,
     color="C0",
     edgecolor="black",
     linewidth=0.5,
@@ -28,27 +29,24 @@ def sunburst(
     authors=None,
 ) -> PolarAxes:
     if authors:
-        df = df[df["author"].isin(authors)]
+        df = df.filter(pl.col("author").is_in(authors))
 
-    df["hour"] = df["timestamp"].dt.hour
-    df_circle = df.groupby(by="hour")["message"].count().reset_index()
-
-    hourly_count = np.zeros(24)
-    hourly_count[df_circle["hour"]] = df_circle["message"]
+    df = df.with_columns(hour=pl.col("timestamp").dt.hour())
+    df_circle = (
+        df.group_by("hour")
+        .agg(pl.col("message").count().alias("message_count"))
+        .sort("hour")
+    )
+    df_circle = df_circle.with_columns(rad=pl.col("hour") * 2 / 24 * np.pi + np.pi / 24)
 
     if ax is None:
         _, ax = plt.subplots(subplot_kw={"projection": "polar"})
-    assert ax is not None  # For type-checking
-
-    x = np.arange(0, 2 * np.pi, 2 * np.pi / len(hourly_count)) + np.pi / len(
-        hourly_count
-    )
 
     alpha = 0.6 if highlight_max else 1
     ax.bar(
-        x,
-        hourly_count,
-        width=2 * np.pi / len(hourly_count),
+        df_circle["rad"],
+        df_circle["message_count"],
+        width=2 * np.pi / 24,
         alpha=alpha,
         color=color,
         bottom=0,
@@ -57,12 +55,14 @@ def sunburst(
     )
 
     if highlight_max:
-        max_ind = np.argmax(hourly_count)
+        df_circle_max = df_circle.filter(
+            df_circle["message_count"] == df_circle["message_count"].max()
+        )
         ax.bar(
-            x[max_ind],
-            hourly_count[max_ind],
+            df_circle_max["rad"],
+            df_circle_max["message_count"],
             bottom=0,
-            width=2 * np.pi / len(hourly_count),
+            width=2 * np.pi / 24,
             alpha=1,
             color=color,
             edgecolor=edgecolor,
@@ -70,9 +70,9 @@ def sunburst(
         )
 
     ax.bar(
-        x,
-        np.max(hourly_count) * np.ones(len(hourly_count)),
-        width=2 * np.pi / len(hourly_count),
+        df_circle["rad"],
+        df_circle["message_count"].max() * np.ones(24),
+        width=2 * np.pi / 24,
         alpha=0.1,
         bottom=0,
         color=color,
@@ -80,7 +80,7 @@ def sunburst(
 
     ax.set_theta_direction(-1)
     ax.spines["polar"].set_visible(True)
-    ax.set_rmax(np.max(hourly_count))
+    ax.set_rmax(df_circle["message_count"].max())
     ax.grid(True)
     ax.set_axisbelow(True)
 
@@ -91,7 +91,7 @@ def sunburst(
 
     if isolines:
         if isolines_relative:
-            ax.set_yticks(np.asarray(isolines) * np.max(hourly_count))
+            ax.set_yticks(np.asarray(isolines) * df_circle["message_count"].max())
         else:
             ax.set_yticks(isolines)
 
@@ -132,7 +132,7 @@ def wordcloud(
 
 
 def calendar_heatmap(
-    df: pd.DataFrame,
+    df,
     year: int,
     vmin=None,
     vmax=None,
