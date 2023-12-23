@@ -13,7 +13,7 @@ def add_sentiment(df: pl.DataFrame, lang: str = "en") -> pl.DataFrame:
     lang (str): Language of the messages, defaults to "en"
 
     Returns:
-    pd.DataFrame: The input dataframe with an additional column "sentiment"
+    pl.DataFrame: The input dataframe with an additional column "sentiment"
 
     """
     if "message" not in df.columns:
