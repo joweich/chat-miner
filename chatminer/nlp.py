@@ -1,19 +1,19 @@
 from typing import Optional
 
-import pandas as pd
+import polars as pl
 from transformers import pipeline
 
 
-def add_sentiment(df: pd.DataFrame, lang: str = "en") -> pd.DataFrame:
+def add_sentiment(df: pl.DataFrame, lang: str = "en") -> pl.DataFrame:
     """
     Add sentiment column to the input dataframe
 
     Parameters:
-    df (pd.DataFrame): The input dataframe
+    df (pl.DataFrame): The input dataframe
     lang (str): Language of the messages, defaults to "en"
 
     Returns:
-    pd.DataFrame: The input dataframe with an additional column "sentiment"
+    pl.DataFrame: The input dataframe with an additional column "sentiment"
 
     """
     if "message" not in df.columns:
@@ -38,11 +38,12 @@ def add_sentiment(df: pd.DataFrame, lang: str = "en") -> pd.DataFrame:
 
         """
         try:
-            return str(sentiment_pipeline(message)[0]["label"])
+            return sentiment_pipeline(message)[0]["label"]
         except Exception as e:
             print(f"Error processing message: {message}: {e}")
             return None
 
-    df["sentiment"] = df["message"].apply(extract_sentiment)
-
+    df = df.with_columns(
+        (pl.col("message")).map_elements(extract_sentiment).alias("sentiment"),
+    )
     return df

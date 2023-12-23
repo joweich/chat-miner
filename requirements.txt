@@ -1,4 +1,4 @@
-pandas
+polars[pandas]
 numpy
 matplotlib
 wordcloud

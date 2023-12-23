@@ -15,7 +15,7 @@ from chatminer.chatparsers import (
 def get_args():
     try:
         cliparser = argparse.ArgumentParser(
-            description="chat-miner provides lean parsers for every major platform transforming chats into pandas dataframes.\
+            description="chat-miner provides lean parsers for every major platform transforming chats into dataframes.\
              Artistic visualizations allow you to explore your data and create artwork from your chats."
         )
 

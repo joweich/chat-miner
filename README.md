@@ -14,16 +14,9 @@
 [![codecov](https://codecov.io/gh/joweich/chat-miner/branch/main/graph/badge.svg?token=6EQF0YNGLK)](https://codecov.io/gh/joweich/chat-miner)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-🌐
-**English**
-[Русский][RU]
-
-[EN]:README.md
-[RU]:README.ru.md
-
 -----------------
 
-**chat-miner** provides lean parsers for every major platform transforming chats into pandas dataframes. Artistic visualizations allow you to explore your data and create artwork from your chats.
+**chat-miner** provides lean parsers for every major platform transforming chats into dataframes. Artistic visualizations allow you to explore your data and create artwork from your chats.
 
 
 ## 1. Installation
@@ -50,7 +43,7 @@ from chatminer.chatparsers import WhatsAppParser
 
 parser = WhatsAppParser(FILEPATH)
 parser.parse_file()
-df = parser.parsed_messages.get_df()
+df = parser.parsed_messages.get_df(as_pandas=True) # as_pandas=False returns polars dataframe
 ```
 **Note:**
 Depending on your source system, Python requires to convert the filepath to a raw string.

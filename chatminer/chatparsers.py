@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import pandas as pd
+import polars as pl
 from dateutil import parser as datetimeparser
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -34,14 +34,10 @@ class ParsedMessageCollection:
     def append(self, mess: ParsedMessage):
         self._parsed_messages.append(mess)
 
-    def get_df(self):
+    def get_df(self, as_pandas=False):
         messages_as_dict = [asdict(mess) for mess in self._parsed_messages]
-        df = pd.DataFrame(messages_as_dict)
-        df["weekday"] = df["timestamp"].dt.day_name()
-        df["hour"] = df["timestamp"].dt.hour
-        df["words"] = df["message"].apply(lambda s: len(s.split(" ")))
-        df["letters"] = df["message"].apply(len)
-        return df
+        df = pl.DataFrame(messages_as_dict)
+        return df.to_pandas() if as_pandas else df
 
     def write_to_json(self, file: str):
         def serialize_message(mess: ParsedMessage):

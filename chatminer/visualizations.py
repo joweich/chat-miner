@@ -3,9 +3,9 @@ import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
+import polars as pl
 from dateutil.relativedelta import relativedelta
-from matplotlib.colors import ColorConverter, ListedColormap
+from matplotlib.colors import ColorConverter
 from matplotlib.patches import Circle, Polygon, RegularPolygon
 from matplotlib.path import Path
 from matplotlib.projections import register_projection
@@ -17,7 +17,7 @@ from wordcloud import STOPWORDS, WordCloud
 
 
 def sunburst(
-    df: pd.DataFrame,
+    df,
     color="C0",
     edgecolor="black",
     linewidth=0.5,
@@ -27,27 +27,28 @@ def sunburst(
     ax=None,
     authors=None,
 ) -> PolarAxes:
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_pandas(df)
+
     if authors:
-        df = df[df["author"].isin(authors)]
+        df = df.filter(pl.col("author").is_in(authors))
 
-    df_circle = df.groupby(by="hour")["message"].count().reset_index()
-
-    hourly_count = np.zeros(24)
-    hourly_count[df_circle["hour"]] = df_circle["message"]
+    df = df.with_columns(hour=pl.col("timestamp").dt.hour())
+    df_circle = (
+        df.group_by("hour")
+        .agg(pl.col("message").count().alias("message_count"))
+        .sort("hour")
+    )
+    df_circle = df_circle.with_columns(rad=pl.col("hour") * 2 / 24 * np.pi + np.pi / 24)
 
     if ax is None:
         _, ax = plt.subplots(subplot_kw={"projection": "polar"})
-    assert ax is not None  # For type-checking
-
-    x = np.arange(0, 2 * np.pi, 2 * np.pi / len(hourly_count)) + np.pi / len(
-        hourly_count
-    )
 
     alpha = 0.6 if highlight_max else 1
     ax.bar(
-        x,
-        hourly_count,
-        width=2 * np.pi / len(hourly_count),
+        df_circle["rad"],
+        df_circle["message_count"],
+        width=2 * np.pi / 24,
         alpha=alpha,
         color=color,
         bottom=0,
@@ -56,12 +57,14 @@ def sunburst(
     )
 
     if highlight_max:
-        max_ind = np.argmax(hourly_count)
+        df_circle_max = df_circle.filter(
+            df_circle["message_count"] == df_circle["message_count"].max()
+        )
         ax.bar(
-            x[max_ind],
-            hourly_count[max_ind],
+            df_circle_max["rad"],
+            df_circle_max["message_count"],
             bottom=0,
-            width=2 * np.pi / len(hourly_count),
+            width=2 * np.pi / 24,
             alpha=1,
             color=color,
             edgecolor=edgecolor,
@@ -69,9 +72,9 @@ def sunburst(
         )
 
     ax.bar(
-        x,
-        np.max(hourly_count) * np.ones(len(hourly_count)),
-        width=2 * np.pi / len(hourly_count),
+        df_circle["rad"],
+        df_circle["message_count"].max() * np.ones(24),
+        width=2 * np.pi / 24,
         alpha=0.1,
         bottom=0,
         color=color,
@@ -79,7 +82,7 @@ def sunburst(
 
     ax.set_theta_direction(-1)
     ax.spines["polar"].set_visible(True)
-    ax.set_rmax(np.max(hourly_count))
+    ax.set_rmax(df_circle["message_count"].max())
     ax.grid(True)
     ax.set_axisbelow(True)
 
@@ -90,7 +93,7 @@ def sunburst(
 
     if isolines:
         if isolines_relative:
-            ax.set_yticks(np.asarray(isolines) * np.max(hourly_count))
+            ax.set_yticks(np.asarray(isolines) * df_circle["message_count"].max())
         else:
             ax.set_yticks(isolines)
 
@@ -105,10 +108,13 @@ def wordcloud(
     authors=None,
     **kwargs,
 ) -> plt.Axes:
-    if authors:
-        df = df[df["author"].isin(authors)]
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_pandas(df)
 
-    messages = [mess.split() for mess in df["message"].values]
+    if authors:
+        df = df.filter(pl.col("author").is_in(authors))
+
+    messages = [mess.split() for mess in df["message"]]
     words = [word.lower() for sublist in messages for word in sublist]
 
     if stopwords:
@@ -131,12 +137,11 @@ def wordcloud(
 
 
 def calendar_heatmap(
-    df: pd.DataFrame,
+    df,
     year: int,
     vmin=None,
     vmax=None,
     cmap="Blues",
-    fillcolor="whitesmoke",
     linewidth=1,
     linecolor=None,
     daylabels=calendar.day_abbr[:],
@@ -150,58 +155,68 @@ def calendar_heatmap(
     Adapted from https://github.com/MarvinT/calmap.
     Copyright (c) 2015 by Martijn Vermaat and contributors
     """
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_pandas(df)
 
     if authors:
-        df = df[df["author"].isin(authors)]
+        df = df.filter(pl.col("author").is_in(authors))
 
-    if year not in df["timestamp"].dt.year.values:
-        available_years = df["timestamp"].dt.year.unique()
+    if year not in df["timestamp"].dt.year():
+        available_years = df["timestamp"].dt.year().unique()
         raise ValueError(
             f"No message in year {year}. Available years: {available_years}"
         )
 
-    df = df[df["timestamp"].dt.year == year]
-    df = df.groupby(by=df["timestamp"].dt.date).count()["message"].reset_index()
+    df = df.filter(pl.col("timestamp").dt.year() == year)
 
-    idx = pd.date_range(start=str(year), end=str(year + 1), freq="D")[:-1]
-    df = df.set_index("timestamp").reindex(idx)
+    df = df.with_columns(date=pl.col("timestamp").dt.date())
+    df_day = (
+        df.group_by("date")
+        .agg(pl.col("message").count().alias("message_count"))
+        .sort("date")
+    )
+
+    df_calendar = pl.date_range(
+        datetime.date(year, 1, 1), datetime.date(year, 12, 31), "1d", eager=True
+    )
+
+    df_joined = (
+        df_calendar.to_frame()
+        .join(df_day, on="date", how="left")
+        .fill_null(strategy="zero")
+    )
+
+    df_joined = df_joined.with_columns(
+        weekday=pl.col("date").dt.weekday(), week=pl.col("date").dt.week()
+    )
+
+    plot_data = df_joined.pivot(
+        index="weekday",
+        columns="week",
+        values="message_count",
+        aggregate_function="sum",
+        maintain_order=True,
+    ).sort("weekday", descending=True)
 
     if vmin is None:
-        vmin = int(df["message"].min())
+        vmin = df_joined["message_count"].min()
     if vmax is None:
-        vmax = int(df["message"].max())
+        vmax = df_joined["message_count"].max()
 
     if ax is None:
         ax = plt.gca()
-    assert isinstance(ax, plt.Axes)  # For type-checking
 
     if linecolor is None:
         linecolor = ax.get_facecolor()
         if ColorConverter().to_rgba(linecolor)[-1] == 0:
             linecolor = "white"
 
-    df["fill"] = 1
-    df["day"] = df.index.dayofweek
-    df["week"] = df.index.isocalendar().week
-
-    df.loc[(df.index.month == 1) & (df.week > 50), "week"] = 0
-    df.loc[(df.index.month == 12) & (df.week < 10), "week"] = df.week.max() + 1
-
-    plot_data = df.pivot(index="day", columns="week", values="message").values[::-1]
-    plot_data = np.ma.masked_where(np.isnan(plot_data), plot_data)
-
-    fill_data = df.pivot(index="day", columns="week", values="message").values[::-1]
-    fill_data = np.ma.masked_where(np.isnan(fill_data), fill_data)
-
-    ax.pcolormesh(fill_data, vmin=0, vmax=1, cmap=ListedColormap([fillcolor]))
-
     kwargs["linewidth"] = linewidth
     kwargs["edgecolors"] = linecolor
     pc = ax.pcolormesh(plot_data, vmin=vmin, vmax=vmax, cmap=cmap, **kwargs)
 
     divider = make_axes_locatable(ax)
-    cax: plt.Axes = divider.append_axes("right", size="3%", pad=0.08)
-    assert isinstance(cax, plt.Axes)
+    cax = divider.append_axes("right", size="3%", pad=0.08)
     plt.colorbar(pc, cax=cax, ticks=[vmin, int((vmin + vmax) / 2), vmax])
 
     ax.set(xlim=(0, plot_data.shape[1]), ylim=(0, plot_data.shape[0]))
@@ -212,7 +227,6 @@ def calendar_heatmap(
         ax.spines[side].set_visible(False)
     ax.xaxis.set_tick_params(which="both", length=0)
     ax.yaxis.set_tick_params(which="both", length=0)
-
     if dayticks is True:
         dayticks = range(len(daylabels))
     elif dayticks is False:
@@ -274,28 +288,36 @@ def radar(
     ax=None,
     authors=None,
 ) -> plt.Axes:
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_pandas(df)
+
     if authors:
-        df = df[df["author"].isin(authors)]
+        df = df.filter(pl.col("author").is_in(authors))
 
-    cats = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-    ]
-    df_radar = df.groupby(by="weekday")["message"].count().reindex(cats)
-
-    theta = radar_factory(7, frame="polygon")
+    df = df.with_columns(weekday=pl.col("timestamp").dt.weekday())
+    df_radar = (
+        df.group_by("weekday")
+        .agg(pl.col("message").count().alias("message_count"))
+        .sort("weekday")
+    )
 
     if ax is None:
         _, ax = plt.subplots(subplot_kw={"projection": "radar"})
 
-    ax.plot(theta, df_radar.values, color=color)
-    ax.fill(theta, df_radar.values, facecolor=color, alpha=alpha)
-    ax.set_varlabels(cats)
+    theta = radar_factory(7, frame="polygon")
+    ax.plot(theta, df_radar["message_count"], color=color)
+    ax.fill(theta, df_radar["message_count"], facecolor=color, alpha=alpha)
+    ax.set_varlabels(
+        [
+            "MON",
+            "TUE",
+            "WED",
+            "THU",
+            "FRI",
+            "SAT",
+            "SUN",
+        ]
+    )
     return ax
 
 
