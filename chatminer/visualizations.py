@@ -27,6 +27,9 @@ def sunburst(
     ax=None,
     authors=None,
 ) -> PolarAxes:
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_pandas(df)
+
     if authors:
         df = df.filter(pl.col("author").is_in(authors))
 
@@ -105,6 +108,9 @@ def wordcloud(
     authors=None,
     **kwargs,
 ) -> plt.Axes:
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_pandas(df)
+
     if authors:
         df = df.filter(pl.col("author").is_in(authors))
 
@@ -149,6 +155,8 @@ def calendar_heatmap(
     Adapted from https://github.com/MarvinT/calmap.
     Copyright (c) 2015 by Martijn Vermaat and contributors
     """
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_pandas(df)
 
     if authors:
         df = df.filter(pl.col("author").is_in(authors))
@@ -280,6 +288,9 @@ def radar(
     ax=None,
     authors=None,
 ) -> plt.Axes:
+    if not isinstance(df, pl.DataFrame):
+        df = pl.from_pandas(df)
+
     if authors:
         df = df.filter(pl.col("author").is_in(authors))
 
