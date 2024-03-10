@@ -181,7 +181,7 @@ def calendar_heatmap(
     )
 
     df_joined = (
-        df_calendar.to_frame()
+        df_calendar.to_frame(name="date")
         .join(df_day, on="date", how="left")
         .fill_null(strategy="zero")
     )
