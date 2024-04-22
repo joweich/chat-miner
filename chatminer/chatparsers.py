@@ -98,7 +98,8 @@ class Parser(ABC):
         self._logger.info("Finished parsing raw messages.")
 
     @abstractmethod
-    def _read_raw_messages_from_file(self): ...
+    def _read_raw_messages_from_file(self):
+        ...
 
     def _parse_raw_messages(self):
         with logging_redirect_tqdm():
@@ -108,7 +109,8 @@ class Parser(ABC):
                     self.parsed_messages.append(parsed_mess)
 
     @abstractmethod
-    def _parse_message(self, mess: Any) -> Optional[ParsedMessage]: ...
+    def _parse_message(self, mess: Any) -> Optional[ParsedMessage]:
+        ...
 
 
 class SignalParser(Parser):
@@ -154,7 +156,7 @@ class WhatsAppParser(Parser):
 
     def _read_raw_messages_from_file(self):
         def _is_new_message(line: str):
-            regex = r"^[\u200e]?\[?(\d{1,4})([./,-])\d{1,2}\2\d{2,4}([, ])"
+            regex = r"^[\u200e]?\[?(\d{1,4})([./,-])\d{1,2}\2\d{2,4}(?:\s|,\s)"
             return re.match(regex, line)
 
         with self._file.open(encoding="utf-8") as f:
