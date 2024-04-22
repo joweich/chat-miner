@@ -98,8 +98,7 @@ class Parser(ABC):
         self._logger.info("Finished parsing raw messages.")
 
     @abstractmethod
-    def _read_raw_messages_from_file(self):
-        ...
+    def _read_raw_messages_from_file(self): ...
 
     def _parse_raw_messages(self):
         with logging_redirect_tqdm():
@@ -109,8 +108,7 @@ class Parser(ABC):
                     self.parsed_messages.append(parsed_mess)
 
     @abstractmethod
-    def _parse_message(self, mess: Any) -> Optional[ParsedMessage]:
-        ...
+    def _parse_message(self, mess: Any) -> Optional[ParsedMessage]: ...
 
 
 class SignalParser(Parser):
