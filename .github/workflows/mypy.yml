@@ -19,4 +19,4 @@ jobs:
         pip install mypy
     - name: Run MyPy
       run: |
-        mypy chatminer/
+        mypy chatminer/ --install-types --non-interactive
