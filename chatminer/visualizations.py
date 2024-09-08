@@ -192,7 +192,7 @@ def calendar_heatmap(
 
     plot_data = df_joined.pivot(
         index="weekday",
-        columns="week",
+        on="week",
         values="message_count",
         aggregate_function="sum",
         maintain_order=True,
