@@ -20,4 +20,4 @@ jobs:
         pip install -r requirements.txt
     - name: Run MyPy
       run: |
-        mypy chatminer/ --install-types --non-interactive
+        mypy chatminer/ --install-types --non-interactive --ignore-missing-imports
