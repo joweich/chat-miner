@@ -192,7 +192,7 @@ def calendar_heatmap(
 
     plot_data = df_joined.pivot(
         index="weekday",
-        columns="week",
+        on="week",
         values="message_count",
         aggregate_function="sum",
         maintain_order=True,
@@ -333,7 +333,7 @@ def radar_factory(num_vars, frame="circle"):
             # Paths with non-unit interpolation steps correspond to gridlines,
             # in which case we force interpolation (to defeat PolarTransform's
             # autoconversion to circular arcs).
-            if path._interpolation_steps > 1:
+            if path._interpolation_steps > 1:  # type: ignore[attr-defined]
                 path = path.interpolated(num_vars)
             return Path(self.transform(path.vertices), path.codes)
 

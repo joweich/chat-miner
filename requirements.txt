@@ -1,4 +1,4 @@
-polars[pandas]
+polars[pandas]>=1.0
 numpy
 matplotlib
 wordcloud
