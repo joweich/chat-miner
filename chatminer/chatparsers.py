@@ -6,7 +6,7 @@ import unicodedata
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 import polars as pl
@@ -35,7 +35,7 @@ class ParsedMessageCollection:
     def append(self, mess: ParsedMessage) -> None:
         self._parsed_messages.append(mess)
 
-    def get_df(self, as_pandas: bool = False) -> pd.DataFrame | pl.DataFrame:
+    def get_df(self, as_pandas: bool = False) -> Union[pd.DataFrame, pl.DataFrame]:
         messages_as_dict = [asdict(mess) for mess in self._parsed_messages]
         df = pl.DataFrame(messages_as_dict)
         return df.to_pandas() if as_pandas else df
