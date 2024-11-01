@@ -69,3 +69,11 @@ include = ["/chatminer"]
 [tool.hatch.build.targets.wheel]
 packages = ["/chatminer"]
 
+[tool.coverage.run]
+source = ["chatminer"]
+omit = [
+    "chatminer/cli.py",
+    "chatminer/nlp.py",
+    "chatminer/visualizations.py",
+    "chatminer/__init__.py",
+]
