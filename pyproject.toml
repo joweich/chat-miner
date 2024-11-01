@@ -1,3 +1,79 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chat-miner"
+dynamic = ["version"]
+description = "Lean parsers and visualizations for chat data."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "Jonas Weich", email = "jns.wch@gmail.com" },
+]
+maintainers = [
+    { name = "Jonas Weich", email = "jns.wch@gmail.com" },
+]
+keywords = [
+  "chat",
+  "chatdata",
+  "messenger",
+  "parser",
+  "wordcloud",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "argparse",
+    "polars[pandas]>=1.0",
+    "numpy>=1.6.1",
+    "matplotlib>=3.4",
+    "wordcloud>=1.9.3",
+    "python-dateutil>=2.8.2",
+    "tqdm>=4.66.0",
+]
+
+[project.optional-dependencies]
+nlp = [
+    "transformers>=4.40",
+]
+
+[project.scripts]
+chatminer = "chatminer.cli:main"
+
+[project.urls]
+"Bug Tracker" = "https://github.com/joweich/chat-miner/issues"
+"Source Code" = "https://github.com/joweich/chat-miner"
+
+[tool.hatch.version]
+path = "chatminer/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["/chatminer"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["/chatminer"]
+
+[tool.coverage.run]
+source = ["chatminer"]
+omit = [
+    "chatminer/cli.py",
+    "chatminer/nlp.py",
+    "chatminer/visualizations.py",
+    "chatminer/__init__.py",
+]
