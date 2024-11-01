@@ -41,7 +41,7 @@ classifiers = [
 dependencies = [
     "argparse",
     "polars[pandas]>=1.0",
-    "numpy>=1.26.0",
+    "numpy>=1.6.1",
     "matplotlib>=3.4",
     "wordcloud>=1.9.3",
     "python-dateutil>=2.8.2",
