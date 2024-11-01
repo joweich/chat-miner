@@ -1,7 +1,0 @@
-polars[pandas]>=1.0
-numpy
-matplotlib
-wordcloud
-python-dateutil
-tqdm
-transformers

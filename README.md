@@ -29,7 +29,7 @@ If you're interested in contributing, running the latest source code, or just li
 ```sh
 git clone https://github.com/joweich/chat-miner.git
 cd chat-miner
-pip install -r requirements.txt
+pip install .
 ```
 
 ## 2. Exporting chat logs
