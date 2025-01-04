@@ -48,11 +48,6 @@ dependencies = [
     "tqdm>=4.66.0",
 ]
 
-[project.optional-dependencies]
-nlp = [
-    "transformers>=4.40",
-]
-
 [project.scripts]
 chatminer = "chatminer.cli:main"
 
@@ -73,7 +68,6 @@ packages = ["/chatminer"]
 source = ["chatminer"]
 omit = [
     "chatminer/cli.py",
-    "chatminer/nlp.py",
     "chatminer/visualizations.py",
     "chatminer/__init__.py",
 ]
