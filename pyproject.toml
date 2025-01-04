@@ -77,3 +77,8 @@ omit = [
     "chatminer/visualizations.py",
     "chatminer/__init__.py",
 ]
+
+[tool.mypy]
+ignore_missing_imports = true
+install_types = true
+non_interactive = true
