@@ -105,28 +105,7 @@ ax[1] = vis.radar(df, ax=ax[1], color='C1', alpha=0)
   <img src="examples/radar.svg">
 </p>
 
-## 5. Natural Language Processing
-
-### 5.1 Add Sentiment 
-
-```python
-from chatminer.nlp import add_sentiment
-
-df_sentiment = add_sentiment(df)
-```
-### 5.2 Example Plot: Sentiment per Author in Groupchat
-
-```python
-df_grouped = df_sentiment.groupby(['author', 'sentiment']).size().unstack(fill_value=0)
-ax = df_grouped.plot(kind='bar', stacked=True, figsize=(8, 3))
-```
-
-<p align="center">
-  <img src="examples/nlp.svg">
-</p>
-
-
-## 6. Command Line Interface
+## 5. Command Line Interface
 The CLI supports parsing chat logs into csv files.
 As of now, you **can't** create visualizations from the CLI directly.
 
